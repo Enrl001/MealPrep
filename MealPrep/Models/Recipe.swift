@@ -14,7 +14,7 @@ enum MealType: String, CaseIterable {
     case snack = "Snack"
 }
 
-struct Recipe: Identifiable {
+struct Recipe: Identifiable, Hashable {
     let id: UUID
     let name: String
     let imageURL: String

@@ -11,7 +11,7 @@ struct HomeView: View {
     @State private var searchText = ""
     @State private var selectedCuisine = "Italian"
     @State private var selectedRecipe: Recipe? = nil
-
+    
     
     let cuisines = ["Italian", "Mexican", "Vegan", "Japanese", "Chinese"]
     
@@ -33,7 +33,10 @@ struct HomeView: View {
                     // MARK: - What's Trending
                     RecipeCardCarousel(
                         title: "What's Trending",
-                        recipes: MockRecipes.all
+                        recipes: MockRecipes.all,
+                        onRecipeTap: { recipe in
+                            selectedRecipe = recipe
+                        }
                     )
                     
                     // MARK: - Trending Food Bloggers
@@ -45,46 +48,50 @@ struct HomeView: View {
                 .padding(.vertical, Theme.Spacing.md)
             }
             .background(Theme.Colors.background)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                
-                // Profile avatar (left)
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        // navigate to profile
-                    } label: {
-                        Circle()
-                            .fill(Theme.Colors.surface)
-                            .frame(width: 32, height: 32)
-                            .overlay {
-                                Image(systemName: "person.fill")
-                                    .foregroundStyle(Theme.Colors.textSecondary)
-                                    .font(.system(size: 14))
+            .navigationDestination(item: $selectedRecipe) { recipe in
+                RecipeDetailView(recipe: recipe)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        
+                        // Profile avatar (left)
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button {
+                                // navigate to profile
+                            } label: {
+                                Circle()
+                                    .fill(Theme.Colors.surface)
+                                    .frame(width: 32, height: 32)
+                                    .overlay {
+                                        Image(systemName: "person.fill")
+                                            .foregroundStyle(Theme.Colors.textSecondary)
+                                            .font(.system(size: 14))
+                                    }
                             }
+                        }
+                        
+                        // App title (center)
+                        ToolbarItem(placement: .principal) {
+                            Text("MealPrep")
+                                .font(Theme.Typography.heading)
+                                .foregroundStyle(Theme.Colors.primary)
+                        }
+                        
+                        // Bell icon (right)
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                // notifications
+                            } label: {
+                                Image(systemName: "bell")
+                                    .foregroundStyle(Theme.Colors.textPrimary)
+                            }
+                        }
                     }
-                }
-                
-                // App title (center)
-                ToolbarItem(placement: .principal) {
-                    Text("MealPrep")
-                        .font(Theme.Typography.heading)
-                        .foregroundStyle(Theme.Colors.primary)
-                }
-                
-                // Bell icon (right)
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        // notifications
-                    } label: {
-                        Image(systemName: "bell")
-                            .foregroundStyle(Theme.Colors.textPrimary)
-                    }
-                }
             }
         }
     }
 }
-
 #Preview {
     HomeView()
+        
 }
+

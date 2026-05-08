@@ -36,7 +36,10 @@ struct RecipeCardCarousel: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: Theme.Spacing.sm) {
                     ForEach(recipes) { recipe in
-                        RecipeCard(recipe: recipe)
+                        RecipeCard(recipe: recipe){
+                            selectedRecipe = recipe
+                            onRecipeTap?(recipe)
+                        }
                     }
                 }
                 .padding(.horizontal, Theme.Spacing.md)
