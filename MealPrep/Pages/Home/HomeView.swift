@@ -10,6 +10,8 @@ import SwiftUI
 struct HomeView: View {
     @State private var searchText = ""
     @State private var selectedCuisine = "Italian"
+    @State private var selectedRecipe: Recipe? = nil
+
     
     let cuisines = ["Italian", "Mexican", "Vegan", "Japanese", "Chinese"]
     
@@ -31,7 +33,7 @@ struct HomeView: View {
                     // MARK: - What's Trending
                     RecipeCardCarousel(
                         title: "What's Trending",
-                        recipes: RecipeMockData.recipes
+                        recipes: MockRecipes.all
                     )
                     
                     // MARK: - Trending Food Bloggers

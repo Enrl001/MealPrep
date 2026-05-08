@@ -9,7 +9,10 @@ import SwiftUI
 struct RecipeCardCarousel: View {
     let title: String
     let recipes: [Recipe]
+    var onRecipeTap: ((Recipe) -> Void)? = nil
     
+    @State private var selectedRecipe: Recipe? = nil
+
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             
@@ -41,13 +44,14 @@ struct RecipeCardCarousel: View {
             }
             .scrollTargetBehavior(.viewAligned)
         }
+        
     }
 }
 
 #Preview {
     RecipeCardCarousel(
         title: "What's Trending",
-        recipes: RecipeMockData.recipes
+        recipes: MockRecipes.all
     )
     .padding(.vertical)
 }

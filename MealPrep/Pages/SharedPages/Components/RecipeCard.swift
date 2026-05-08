@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RecipeCard: View {
     let recipe: Recipe
+    var onTap: (() -> Void)? = nil
     
     @State private var isPressed = false
     
@@ -78,13 +79,16 @@ struct RecipeCard: View {
         }
         .scaleEffect(isPressed ? 0.97 : 1.0)
         .animation(.spring(duration: 0.2), value: isPressed)
-        .onLongPressGesture(minimumDuration: .infinity,
-                            pressing: { isPressed = $0 },
-                            perform: {})
+        //.onLongPressGesture(minimumDuration: .infinity,
+                            //pressing: { isPressed = $0 },
+                           // perform: {})
+        .onTapGesture{
+            onTap?()
+        }
     }
 }
 
 #Preview {
-    RecipeCard(recipe: RecipeMockData.recipes[0])
+    RecipeCard(recipe: MockRecipes.all[0])
         .padding()
 }

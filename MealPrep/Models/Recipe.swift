@@ -137,4 +137,13 @@ struct Recipe: Identifiable {
         )
     }
 }
+struct Ingredient: Hashable {
+    let name: String
+    let quantity: String
+}
+
+struct RecipeStep: Hashable {
+    let title: String
+    let description: String
+}
 
