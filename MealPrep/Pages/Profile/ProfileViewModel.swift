@@ -17,12 +17,7 @@ struct ProfileViewModel {
         followingCount: "850"
     )
 
-    let savedRecipes: [ProfileRecipe] = [
-        ProfileRecipe(title: "Honey Glazed Salmon", imageName: "Honey_Glazed_Salmon"),
-        ProfileRecipe(title: "Lemon Zest Linguine", imageName: "Lemon_Zest_Linguine"),
-        ProfileRecipe(title: "Green Power Bowl", imageName: "Green_Power_Bowl"),
-        ProfileRecipe(title: "Berry Yogurt Toast", imageName: "Yoghurt_Berry_Toast")
-    ]
+    let savedRecipes: [Recipe] = Array(MockRecipes.all.prefix(4))
 
     let inventoryRecipes: [ProfileRecipe] = [
         ProfileRecipe(title: "Pantry Tomato Soup", imageName: "Lemon_Zest_Linguine"),
@@ -64,18 +59,35 @@ struct ProfileRecipe: Identifiable {
     let id = UUID()
     let title: String
     let imageName: String
+}
 
-    var background: LinearGradient {
-        let gradients: [LinearGradient] = [
-            LinearGradient(colors: [Color(hex: "#F5A25D"), Color(hex: "#E36D44")], startPoint: .topLeading, endPoint: .bottomTrailing),
-            LinearGradient(colors: [Color(hex: "#86847E"), Color(hex: "#2F3338")], startPoint: .topLeading, endPoint: .bottomTrailing),
-            LinearGradient(colors: [Color(hex: "#9BB17D"), Color(hex: "#4C6B43")], startPoint: .topLeading, endPoint: .bottomTrailing),
-            LinearGradient(colors: [Color(hex: "#E6B67A"), Color(hex: "#C98247")], startPoint: .topLeading, endPoint: .bottomTrailing),
-            LinearGradient(colors: [Color(hex: "#E58B73"), Color(hex: "#AE4337")], startPoint: .topLeading, endPoint: .bottomTrailing),
-            LinearGradient(colors: [Color(hex: "#D6C06B"), Color(hex: "#80742B")], startPoint: .topLeading, endPoint: .bottomTrailing)
-        ]
+struct ProfileRecipeGrid: View {
+    let recipes: [ProfileRecipe]
 
-        return gradients[abs(title.hashValue) % gradients.count]
+    private let columns = [
+        GridItem(.flexible(), spacing: Theme.Spacing.md),
+        GridItem(.flexible(), spacing: Theme.Spacing.md)
+    ]
+
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: Theme.Spacing.md) {
+            ForEach(recipes) { recipe in
+                VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                    Image(recipe.imageName)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 138)
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
+
+                    Text(recipe.title)
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.top, Theme.Spacing.lg)
     }
 }
 

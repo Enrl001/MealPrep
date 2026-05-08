@@ -52,8 +52,6 @@ struct ProfileView: View {
                             .foregroundStyle(.white, Theme.Colors.primary.opacity(0.65))
                             .padding(10)
                     }
-
-//                Butdecdeyle(.plain)
             }
 
             Text(viewModel.profile.name)

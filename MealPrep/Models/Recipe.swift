@@ -24,8 +24,8 @@ struct Recipe: Identifiable {
     let rating: Double
     let reviewCount: Int
     let servings: Int
-    let ingredients: [String]
-    let instructions: [String]
+    let ingredients: [Ingredient]
+    let instructions: [RecipeStep]
     let authorUsername: String
     let isPublic: Bool
     let isTrending: Bool
@@ -42,8 +42,8 @@ struct Recipe: Identifiable {
         rating: Double,
         reviewCount: Int,
         servings: Int = 1,
-        ingredients: [String] = [],
-        instructions: [String] = [],
+        ingredients: [Ingredient] = [],
+        instructions: [RecipeStep] = [],
         authorUsername: String = "",
         isPublic: Bool = true,
         isTrending: Bool = false,
@@ -76,8 +76,8 @@ struct Recipe: Identifiable {
         reviewCount: Int,
         servings: Int,
         rating: Double,
-        ingredients: [String],
-        instructions: [String],
+        ingredients: [Ingredient],
+        instructions: [RecipeStep],
         authorUsername: String,
         isPublic: Bool,
         isTrending: Bool,
@@ -111,8 +111,8 @@ struct Recipe: Identifiable {
         prepTime: Int,
         calories: Int,
         servings: Int,
-        ingredients: [String],
-        instructions: String,
+        ingredients: [Ingredient],
+        instructions: [RecipeStep],
         authorUsername: String,
         isPublic: Bool,
         isTrending: Bool,
@@ -129,7 +129,7 @@ struct Recipe: Identifiable {
             reviewCount: 0,
             servings: servings,
             ingredients: ingredients,
-            instructions: [instructions],
+            instructions: instructions,
             authorUsername: authorUsername,
             isPublic: isPublic,
             isTrending: isTrending,
