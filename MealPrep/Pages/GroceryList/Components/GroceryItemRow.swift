@@ -5,30 +5,35 @@ struct GroceryItemRow: View {
     let onToggle: () -> Void
 
     var body: some View {
-        Button(action: onToggle) {
+        Button {
+            onToggle()
+        } label: {
             HStack(spacing: Theme.Spacing.md) {
-                Image(systemName: item.isChecked ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: Theme.IconSize.md))
-                    .foregroundStyle(item.isChecked ? Theme.Colors.success : Theme.Colors.textTertiary)
+                Image(systemName: item.isBought ? "checkmark.circle.fill" : "circle")
+                    .font(.title3)
+                    .foregroundColor(item.isBought ? Theme.Colors.success : Theme.Colors.textTertiary)
 
                 VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     Text(item.name)
-                        .font(Theme.Typography.body)
-                        .foregroundColor(Theme.Colors.textPrimary)
-                        .strikethrough(item.isChecked, color: Theme.Colors.textSecondary)
+                        .font(Theme.Typography.body.weight(.semibold))
+                        .foregroundColor(item.isBought ? Theme.Colors.textTertiary : Theme.Colors.textPrimary)
+                        .strikethrough(item.isBought)
 
-                    if !item.quantity.isEmpty {
-                        Text(item.quantity)
+                    if !item.note.isEmpty {
+                        Text(item.note)
                             .font(Theme.Typography.caption)
                             .foregroundColor(Theme.Colors.textSecondary)
                     }
                 }
 
                 Spacer()
+
+                Text(item.quantity)
+                    .font(Theme.Typography.body.weight(.semibold))
+                    .foregroundColor(item.isBought ? Theme.Colors.textTertiary : Theme.Colors.tertiary)
             }
-            .padding(.horizontal, Theme.Spacing.md)
-            .padding(.vertical, Theme.Spacing.sm + Theme.Spacing.xs)
-            .contentShape(Rectangle())
+            .padding()
+            .opacity(item.isBought ? 0.6 : 1.0)
         }
         .buttonStyle(.plain)
     }
