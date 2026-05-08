@@ -30,6 +30,6 @@ struct AppTabView: View {
                     Label("Profile", systemImage: "person.crop.circle")
                 }
         }
-        .tint(Color(hex: "#FE9900")) 
+        .tint(Theme.Colors.primary)
     }
 }
