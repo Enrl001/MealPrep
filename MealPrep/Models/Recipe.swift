@@ -7,6 +7,13 @@
 
 import Foundation
 
+enum MealType: String, CaseIterable {
+    case breakfast = "Breakfast"
+    case lunch = "Lunch"
+    case dinner = "Dinner"
+    case snack = "Snack"
+}
+
 struct Recipe: Identifiable {
     let id: UUID
     let name: String
@@ -16,5 +23,118 @@ struct Recipe: Identifiable {
     let mealType: String
     let rating: Double
     let reviewCount: Int
+    let servings: Int
+    let ingredients: [String]
+    let instructions: [String]
+    let authorUsername: String
+    let isPublic: Bool
+    let isTrending: Bool
+    let tags: [String]
+
+    var title: String { name }
+    init(
+        id: UUID,
+        name: String,
+        imageURL: String,
+        cookTimeMinutes: Int,
+        cuisine: String,
+        mealType: String,
+        rating: Double,
+        reviewCount: Int,
+        servings: Int = 1,
+        ingredients: [String] = [],
+        instructions: [String] = [],
+        authorUsername: String = "",
+        isPublic: Bool = true,
+        isTrending: Bool = false,
+        tags: [String] = []
+    ) {
+        self.id = id
+        self.name = name
+        self.imageURL = imageURL
+        self.cookTimeMinutes = cookTimeMinutes
+        self.cuisine = cuisine
+        self.mealType = mealType
+        self.rating = rating
+        self.reviewCount = reviewCount
+        self.servings = servings
+        self.ingredients = ingredients
+        self.instructions = instructions
+        self.authorUsername = authorUsername
+        self.isPublic = isPublic
+        self.isTrending = isTrending
+        self.tags = tags
+    }
+
+    init(
+        id: UUID,
+        name: String,
+        imageURL: String,
+        cuisine: String,
+        mealType: MealType,
+        cookingTimeMinutes: Int,
+        reviewCount: Int,
+        servings: Int,
+        rating: Double,
+        ingredients: [String],
+        instructions: [String],
+        authorUsername: String,
+        isPublic: Bool,
+        isTrending: Bool,
+        tags: [String]
+    ) {
+        self.init(
+            id: id,
+            name: name,
+            imageURL: imageURL,
+            cookTimeMinutes: cookingTimeMinutes,
+            cuisine: cuisine,
+            mealType: mealType.rawValue,
+            rating: rating,
+            reviewCount: reviewCount,
+            servings: servings,
+            ingredients: ingredients,
+            instructions: instructions,
+            authorUsername: authorUsername,
+            isPublic: isPublic,
+            isTrending: isTrending,
+            tags: tags
+        )
+    }
+
+    init(
+        id: UUID,
+        title: String,
+        imageURL: String,
+        cuisine: String,
+        mealType: MealType,
+        prepTime: Int,
+        calories: Int,
+        servings: Int,
+        ingredients: [String],
+        instructions: String,
+        authorUsername: String,
+        isPublic: Bool,
+        isTrending: Bool,
+        tags: [String]
+    ) {
+        self.init(
+            id: id,
+            name: title,
+            imageURL: imageURL,
+            cookTimeMinutes: prepTime,
+            cuisine: cuisine,
+            mealType: mealType.rawValue,
+            rating: 0,
+            reviewCount: 0,
+            servings: servings,
+            ingredients: ingredients,
+            instructions: [instructions],
+            authorUsername: authorUsername,
+            isPublic: isPublic,
+            isTrending: isTrending,
+            tags: tags
+        )
+    }
 }
 
