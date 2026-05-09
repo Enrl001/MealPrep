@@ -9,6 +9,8 @@ import SwiftUI
 
 struct TrendingPeopleCarousel: View {
     let bloggers: [Blogger]
+    @State private var showTrendingPeople = false
+
     
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
@@ -22,7 +24,7 @@ struct TrendingPeopleCarousel: View {
                 Spacer()
                 
                 Button("See all →") {
-                    // navigate to full list
+                    showTrendingPeople = true
                 }
                 .font(Theme.Typography.body)
                 .foregroundStyle(Theme.Colors.primary)
@@ -67,6 +69,9 @@ struct TrendingPeopleCarousel: View {
                 }
                 .padding(.horizontal, Theme.Spacing.md)
             }
+        }
+        .navigationDestination(isPresented: $showTrendingPeople) {
+            TrendingPeoplePage()
         }
     }
 }
