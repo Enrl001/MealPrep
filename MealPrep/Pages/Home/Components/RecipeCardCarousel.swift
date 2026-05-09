@@ -56,9 +56,11 @@ struct RecipeCardCarousel: View {
 }
 
 #Preview {
-    RecipeCardCarousel(
-        title: "What's Trending",
-        recipes: MockRecipes.all
-    )
-    .padding(.vertical)
+    NavigationStack {
+        RecipeCardCarousel(
+            title: "What's Trending",
+            recipes: MockRecipes.all
+        )
+        .padding(.vertical)
+    }
 }

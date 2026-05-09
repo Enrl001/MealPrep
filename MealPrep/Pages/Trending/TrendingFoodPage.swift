@@ -45,19 +45,17 @@ struct TrendingFoodPage: View {
                     
                     // MARK: - Top 3 Featured
                     if filteredRecipes.count > 0 {
-                        // First recipe — large card
                         TrendingLargeCard(recipe: filteredRecipes[0]) {
-                            selectedRecipe = filteredRecipes[0]
+                                selectedRecipe = filteredRecipes[0]
                         }
                         .padding(.horizontal, Theme.Spacing.md)
                     }
-                    
                     // Second + Third — small horizontal cards
                     if filteredRecipes.count > 1 {
                         VStack(spacing: Theme.Spacing.sm) {
                             ForEach(filteredRecipes.dropFirst().prefix(2)) { recipe in
-                                TrendingSmallCard(recipe: recipe) {
-                                    selectedRecipe = recipe
+                                TrendingSmallCard(recipe: recipe){
+                                        selectedRecipe = recipe
                                 }
                             }
                         }
@@ -69,6 +67,7 @@ struct TrendingFoodPage: View {
                         HStack(spacing: Theme.Spacing.sm) {
                             ForEach(filters, id: \.self) { filter in
                                 Button {
+                                    selectedRecipe = nil
                                     selectedFilter = filter
                                 } label: {
                                     Text(filter)
@@ -101,8 +100,8 @@ struct TrendingFoodPage: View {
                     if filteredRecipes.count > 3 {
                         VStack(spacing: Theme.Spacing.md) {
                             ForEach(filteredRecipes.dropFirst(3)) { recipe in
-                                TrendingLargeCard(recipe: recipe) {
-                                    selectedRecipe = recipe
+                                TrendingLargeCard(recipe: recipe){
+                                        selectedRecipe = recipe
                                 }
                                 .padding(.horizontal, Theme.Spacing.md)
                             }
@@ -114,8 +113,13 @@ struct TrendingFoodPage: View {
         }
         .background(Theme.Colors.background)
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(item: $selectedRecipe) { recipe in
-            RecipeDetailView(recipe: recipe)
+        .navigationDestination(isPresented: Binding(
+            get: { selectedRecipe != nil },
+            set: { if !$0 { selectedRecipe = nil } }
+        )) {
+            if let recipe = selectedRecipe {
+                RecipeDetailView(recipe: recipe)
+            }
         }
     }
 }
