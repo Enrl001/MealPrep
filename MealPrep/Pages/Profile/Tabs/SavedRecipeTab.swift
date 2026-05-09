@@ -21,21 +21,7 @@ struct SavedRecipeTab: View {
             ForEach(recipes) { recipe in
                 VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                     ZStack(alignment: .topTrailing) {
-                        AsyncImage(url: URL(string: recipe.imageURL)) { image in
-                            image
-                                .resizable()
-                                .scaledToFill()
-                        } placeholder: {
-                            Rectangle()
-                                .fill(Theme.Colors.surface)
-                                .overlay {
-                                    Image(systemName: "fork.knife")
-                                        .foregroundStyle(Theme.Colors.textTertiary)
-                                }
-                        }
-                        .frame(height: 138)
-                        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
-
+                        RecipeCard(recipe: recipe)
                         Image(systemName: "bookmark")
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(Theme.Colors.primary)

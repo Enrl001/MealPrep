@@ -32,4 +32,32 @@ struct InventoryItem: Identifiable, Hashable, Codable {
         self.category = category
     }
 }
+
+func saveInventory(userId: String, inventory: [InventoryItem]) {
+    let key = "inventory_\(userId)"
+
+    do {
+        let data = try JSONEncoder().encode(inventory)
+        UserDefaults.standard.set(data, forKey: key)
+    } catch {
+        print("Failed to save inventory:", error)
+    }
+}
+
+func loadInventory(userId: String) -> [InventoryItem] {
+    let key = "inventory_\(userId)"
+
+    guard let data = UserDefaults.standard.data(forKey: key) else {
+        return []
+    }
+
+    do {
+        return try JSONDecoder().decode([InventoryItem].self, from: data)
+    } catch {
+        print("Failed to load inventory:", error)
+        return []
+    }
+}
+
+
  

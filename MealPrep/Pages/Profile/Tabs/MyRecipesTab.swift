@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct MyRecipesTab: View {
-    let recipes: [ProfileRecipe]
+//    let recipes: [ProfileRecipe]
 
     var body: some View {
-        ProfileRecipeGrid(recipes: recipes)
+//        ProfileRecipeGrid(recipes: recipes)
+        Text("my recipes")
     }
 }
