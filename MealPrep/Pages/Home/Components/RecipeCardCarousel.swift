@@ -12,7 +12,8 @@ struct RecipeCardCarousel: View {
     var onRecipeTap: ((Recipe) -> Void)? = nil
     
     @State private var selectedRecipe: Recipe? = nil
-
+    @State private var showTrendingPage = false
+    
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             
@@ -25,7 +26,7 @@ struct RecipeCardCarousel: View {
                 Spacer()
                 
                 Button("See all →") {
-                    // navigate to full list
+                    showTrendingPage = true
                 }
                 .font(Theme.Typography.body)
                 .foregroundStyle(Theme.Colors.primary)
@@ -47,7 +48,10 @@ struct RecipeCardCarousel: View {
             }
             .scrollTargetBehavior(.viewAligned)
         }
-        
+        .navigationDestination(isPresented: $showTrendingPage) {
+            TrendingFoodPage()
+            
+        }
     }
 }
 

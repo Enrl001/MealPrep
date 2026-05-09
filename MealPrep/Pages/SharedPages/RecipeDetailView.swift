@@ -5,86 +5,54 @@
 //  Created by Enerel Tsolmonbayar on 8/5/2026.
 //
 
+//
+//  RecipeDetailView.swift
+//  MealPrep
+//
+
 import SwiftUI
 
 struct RecipeDetailView: View {
     let recipe: Recipe
     @State private var isLiked = false
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                
+
                 // MARK: - Hero Image
-                ZStack(alignment: .top) {
-                    AsyncImage(url: URL(string: recipe.imageURL)) { image in
-                        image
-                            .resizable()
-                            .scaledToFill()
-                    } placeholder: {
-                        Rectangle()
-                            .fill(Theme.Colors.surface)
-                            .overlay {
-                                Image(systemName: "fork.knife")
-                                    .foregroundStyle(Theme.Colors.textTertiary)
-                                    .font(.system(size: 40))
-                            }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 280)
-                    .clipped()
-                    
-                    // Back + Share buttons
-                    HStack {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Image(systemName: "chevron.left")
-                                .foregroundStyle(Theme.Colors.textPrimary)
-                                .padding(Theme.Spacing.sm)
-                                .background(Theme.Colors.background)
-                                .clipShape(Circle())
+                AsyncImage(url: URL(string: recipe.imageURL)) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    Rectangle()
+                        .fill(Theme.Colors.surface)
+                        .overlay {
+                            Image(systemName: "fork.knife")
+                                .foregroundStyle(Theme.Colors.textTertiary)
+                                .font(.system(size: 40))
                         }
-                        
-                        Spacer()
-                        
-                        Button {
-                            // share
-                        } label: {
-                            Image(systemName: "square.and.arrow.up")
-                                .foregroundStyle(Theme.Colors.textPrimary)
-                                .padding(Theme.Spacing.sm)
-                                .background(Theme.Colors.background)
-                                .clipShape(Circle())
-                        }
-                    }
-                    .padding(Theme.Spacing.md)
                 }
-                
+                .frame(maxWidth: .infinity)
+                .frame(height: 280)
+                .clipped()
+
                 // MARK: - Content
                 VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
-                    
+
                     // Title + Like
                     HStack(alignment: .top) {
                         Text(recipe.name)
                             .font(Theme.Typography.hero)
                             .foregroundStyle(Theme.Colors.textPrimary)
-                        
                         Spacer()
-                        
-                        Button {
-                            isLiked.toggle()
-                        } label: {
-                            Image(systemName: isLiked ? "heart.fill" : "heart")
-                                .foregroundStyle(isLiked ? Theme.Colors.tertiary : Theme.Colors.textSecondary)
-                                .font(.system(size: 22))
-                        }
                     }
-                    
+
                     // Rating
                     HStack(spacing: Theme.Spacing.xs) {
-                        ForEach(0..<5) { i in
+                        ForEach(0..<5) { _ in
                             Image(systemName: "star.fill")
                                 .foregroundStyle(Theme.Colors.primary)
                                 .font(.system(size: 12))
@@ -93,14 +61,14 @@ struct RecipeDetailView: View {
                             .font(Theme.Typography.micro)
                             .foregroundStyle(Theme.Colors.textSecondary)
                     }
-                    
+
                     // MARK: - Info Boxes
                     HStack(spacing: Theme.Spacing.sm) {
                         InfoBox(icon: "clock", label: "Prep Time", value: "\(recipe.cookTimeMinutes) min")
-                        InfoBox(icon: "person.2", label: "Servings", value: "2 ppl")
+                        InfoBox(icon: "person.2", label: "Servings", value: "\(recipe.servings) ppl")
                         InfoBox(icon: "bolt", label: "Calories", value: "420 kcal")
                     }
-                    
+
                     // MARK: - Ingredients
                     VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                         HStack {
@@ -112,18 +80,17 @@ struct RecipeDetailView: View {
                                 .font(Theme.Typography.micro)
                                 .foregroundStyle(Theme.Colors.textSecondary)
                         }
-                        
                         ForEach(recipe.ingredients, id: \.name) { ingredient in
                             IngredientRow(ingredient: ingredient)
                         }
                     }
-                    
+
                     // MARK: - Instructions
                     VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                         Text("Instructions")
                             .font(Theme.Typography.heading)
                             .foregroundStyle(Theme.Colors.textPrimary)
-                        
+
                         ForEach(Array(recipe.instructions.enumerated()), id: \.offset) { index, step in
                             HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                                 Circle()
@@ -134,7 +101,6 @@ struct RecipeDetailView: View {
                                             .font(Theme.Typography.micro)
                                             .foregroundStyle(Theme.Colors.background)
                                     }
-                                
                                 VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                                     Text(step.title)
                                         .font(Theme.Typography.subhead)
@@ -153,10 +119,26 @@ struct RecipeDetailView: View {
                 .padding(Theme.Spacing.md)
             }
         }
-        .ignoresSafeArea(edges: .top)
-        .navigationBarHidden(true)
-        
-        // MARK: - Bottom Bar
+        .background(Theme.Colors.background)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(recipe.name)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    isLiked.toggle()
+                } label: {
+                    Image(systemName: isLiked ? "heart.fill" : "heart")
+                        .foregroundStyle(isLiked ? Theme.Colors.tertiary : Theme.Colors.textSecondary)
+                }
+            }
+        }
         .safeAreaInset(edge: .bottom) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
@@ -167,11 +149,8 @@ struct RecipeDetailView: View {
                         .font(Theme.Typography.heading)
                         .foregroundStyle(Theme.Colors.textPrimary)
                 }
-                
                 Spacer()
-                
                 Button {
-                    // start cooking
                 } label: {
                     HStack {
                         Image(systemName: "fork.knife")
@@ -187,19 +166,17 @@ struct RecipeDetailView: View {
             }
             .padding(Theme.Spacing.md)
             .background(Theme.Colors.background)
-            .overlay(alignment: .top) {
-                Divider()
-            }
+            .overlay(alignment: .top) { Divider() }
         }
     }
 }
 
-// MARK: - Supporting Views
+// MARK: - InfoBox
 struct InfoBox: View {
     let icon: String
     let label: String
     let value: String
-    
+
     var body: some View {
         VStack(spacing: Theme.Spacing.xs) {
             Image(systemName: icon)
@@ -218,10 +195,11 @@ struct InfoBox: View {
     }
 }
 
+// MARK: - IngredientRow
 struct IngredientRow: View {
     let ingredient: Ingredient
     @State private var isChecked = false
-    
+
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
             Button {
@@ -231,7 +209,7 @@ struct IngredientRow: View {
                     .foregroundStyle(isChecked ? Theme.Colors.primary : Theme.Colors.divider)
                     .font(.system(size: 20))
             }
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(ingredient.name)
                     .font(Theme.Typography.body)
