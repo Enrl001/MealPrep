@@ -14,11 +14,25 @@ struct TrendingFoodPage: View {
     let filters = ["All Trending", "Breakfast", "Lunch", "Dinner", "Snack"]
     
     var filteredRecipes: [Recipe] {
-        let trending = MockRecipes.all.filter { $0.isTrending }
-        if selectedFilter == "All Trending" {
-            return trending
-        }
-        return trending.filter { $0.mealType.lowercased() == selectedFilter.lowercased() }
+        var recipes = MockRecipes.all.filter { $0.isTrending }
+            
+            // Filter by meal type
+            if selectedFilter != "All Trending" {
+                recipes = recipes.filter {
+                    $0.mealType.lowercased() == selectedFilter.lowercased()
+                }
+            }
+            
+            // Filter by search text
+            if !searchText.isEmpty {
+                recipes = recipes.filter {
+                    $0.name.lowercased().contains(searchText.lowercased()) ||
+                    $0.cuisine.lowercased().contains(searchText.lowercased()) ||
+                    $0.tags.contains { $0.lowercased().contains(searchText.lowercased()) }
+                }
+            }
+            
+            return recipes
     }
     
     var body: some View {
@@ -128,6 +142,7 @@ struct TrendingFoodPage: View {
 struct TrendingLargeCard: View {
     let recipe: Recipe
     var onTap: (() -> Void)? = nil
+    @State private var isLiked = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
@@ -187,10 +202,12 @@ struct TrendingLargeCard: View {
                     Spacer()
                     
                     Button {
+                        isLiked.toggle()
                     } label: {
-                        Image(systemName: "heart")
-                            .foregroundStyle(Theme.Colors.textSecondary)
+                        Image(systemName: isLiked ? "heart.fill" : "heart")
+                            .foregroundStyle(isLiked ? Theme.Colors.tertiary : Theme.Colors.textSecondary)
                     }
+                    .buttonStyle(.plain)
                 }
                 
                 HStack(spacing: Theme.Spacing.xs) {
@@ -211,6 +228,7 @@ struct TrendingLargeCard: View {
                 }
             }
         }
+        .contentShape(Rectangle())
         .onTapGesture {
             onTap?()
         }
@@ -221,6 +239,8 @@ struct TrendingLargeCard: View {
 struct TrendingSmallCard: View {
     let recipe: Recipe
     var onTap: (() -> Void)? = nil
+    @State private var isLiked = false
+
     
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
@@ -261,6 +281,14 @@ struct TrendingSmallCard: View {
             }
             
             Spacer()
+            
+            Button {
+                isLiked.toggle()
+            } label: {
+                Image(systemName: isLiked ? "heart.fill" : "heart")
+                    .foregroundStyle(isLiked ? Theme.Colors.tertiary : Theme.Colors.textSecondary)
+            }
+            .buttonStyle(.plain)
         }
         .padding(Theme.Spacing.sm)
         .background(Theme.Colors.background)

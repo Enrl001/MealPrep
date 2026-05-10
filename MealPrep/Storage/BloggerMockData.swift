@@ -15,6 +15,8 @@ struct BloggerMockData {
             imageURL: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400",
             bio: "Artisanal Italian cuisine with a modern healthy twist, specializing in handmade sourdough pastas.",
             followers: 125000,
+            following: 230,
+            recipeCount: 50,
             specialties: ["Modern Italian", "Pasta Expert"]
         ),
         Blogger(
@@ -23,6 +25,8 @@ struct BloggerMockData {
             imageURL: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
             bio: "Plant-based fusion that prioritizes flavor and protein density for active lifestyle enthusiasts.",
             followers: 89000,
+            following: 150,
+            recipeCount: 68,
             specialties: ["Plant-Based", "High Protein"]
         ),
         Blogger(
@@ -31,6 +35,8 @@ struct BloggerMockData {
             imageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400",
             bio: "Quick 15-minute meal preps for busy professionals. Simple ingredients, maximum nutritional impact.",
             followers: 210000,
+            following: 320,
+            recipeCount: 78,
             specialties: ["Meal Prep", "Fast Cooking"]
         ),
         Blogger(
@@ -39,6 +45,8 @@ struct BloggerMockData {
             imageURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400",
             bio: "Classic comfort food reinvented with bold flavors and simple techniques.",
             followers: 54000,
+            following: 140,
+            recipeCount: 49,
             specialties: ["Comfort Food", "BBQ"]
         ),
         Blogger(
@@ -47,6 +55,8 @@ struct BloggerMockData {
             imageURL: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400",
             bio: "Bringing authentic Indian street food flavours to your home kitchen with easy weeknight recipes.",
             followers: 178000,
+            following: 190,
+            recipeCount: 77,
             specialties: ["Indian Cuisine", "Spicy Food"]
         ),
         Blogger(
@@ -55,6 +65,8 @@ struct BloggerMockData {
             imageURL: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400",
             bio: "French-trained pastry chef sharing approachable dessert recipes for the everyday baker.",
             followers: 95000,
+            following: 160,
+            recipeCount: 54,
             specialties: ["Pastry Chef", "Desserts"]
         ),
         Blogger(
@@ -63,6 +75,8 @@ struct BloggerMockData {
             imageURL: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400",
             bio: "Modern Japanese home cooking — ramen, sushi, and everything in between made simple.",
             followers: 143000,
+            following: 210,
+            recipeCount: 87,
             specialties: ["Japanese", "Ramen"]
         ),
         Blogger(
@@ -71,6 +85,8 @@ struct BloggerMockData {
             imageURL: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400",
             bio: "Vegan Mexican food that proves plant-based eating can be bold, colourful and deeply satisfying.",
             followers: 67000,
+            following: 105,
+            recipeCount: 39,
             specialties: ["Vegan Expert", "Mexican"]
         ),
         Blogger(
@@ -79,6 +95,8 @@ struct BloggerMockData {
             imageURL: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400",
             bio: "Neapolitan pizza master bringing centuries-old recipes to the modern home oven.",
             followers: 112000,
+            following: 230,
+            recipeCount: 56,
             specialties: ["Pizza", "Modern Italian"]
         ),
         Blogger(
@@ -87,6 +105,8 @@ struct BloggerMockData {
             imageURL: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400",
             bio: "West African home cooking made accessible — bold spices, hearty stews and vibrant rice dishes.",
             followers: 83000,
+            following: 310,
+            recipeCount: 64,
             specialties: ["African Cuisine", "Spicy Food"]
         ),
         Blogger(
@@ -95,6 +115,8 @@ struct BloggerMockData {
             imageURL: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400",
             bio: "Korean fusion street food and banchan recipes for those who love big flavours in small bites.",
             followers: 196000,
+            following: 340,
+            recipeCount: 78,
             specialties: ["Korean", "Street Food"]
         ),
         Blogger(
@@ -103,6 +125,8 @@ struct BloggerMockData {
             imageURL: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400",
             bio: "Authentic Mexican grilling and smoky barbacoa recipes passed down through three generations.",
             followers: 74000,
+            following: 201,
+            recipeCount: 58,
             specialties: ["Mexican", "BBQ"]
         ),
         Blogger(
@@ -111,6 +135,8 @@ struct BloggerMockData {
             imageURL: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400",
             bio: "Parisian café culture at home — croissants, quiches, and simple French bistro classics.",
             followers: 158000,
+            following: 140,
+            recipeCount: 86,
             specialties: ["Pastry Chef", "French"]
         ),
         Blogger(
@@ -119,6 +145,8 @@ struct BloggerMockData {
             imageURL: "https://images.unsplash.com/photo-1480455624313-e29b44bbfde9?w=400",
             bio: "Healthy high-protein meal prep for gym enthusiasts who refuse to sacrifice taste for nutrition.",
             followers: 221000,
+            following: 312,
+            recipeCount: 72,
             specialties: ["High Protein", "Meal Prep"]
         )
     ]

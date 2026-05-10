@@ -16,12 +16,25 @@ struct HomeView: View {
     let cuisines = ["All", "Italian", "Mexican", "Vegan", "Japanese", "Chinese"]
     
     var filteredRecipes: [Recipe] {
-        if selectedCuisine == "All" {
-            return MockRecipes.all
-        }
-        return MockRecipes.all.filter {
-            $0.cuisine.lowercased() == selectedCuisine.lowercased()
-        }
+        var recipes = MockRecipes.all
+            
+            // Filter by cuisine
+            if selectedCuisine != "All" {
+                recipes = recipes.filter {
+                    $0.cuisine.lowercased() == selectedCuisine.lowercased()
+                }
+            }
+            
+            // Filter by search text
+            if !searchText.isEmpty {
+                recipes = recipes.filter {
+                    $0.name.lowercased().contains(searchText.lowercased()) ||
+                    $0.cuisine.lowercased().contains(searchText.lowercased()) ||
+                    $0.tags.contains { $0.lowercased().contains(searchText.lowercased()) }
+                }
+            }
+            
+            return recipes
     }
     
     var body: some View {
