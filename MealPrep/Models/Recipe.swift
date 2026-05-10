@@ -14,7 +14,8 @@ enum MealType: String, CaseIterable {
     case snack = "Snack"
 }
 
-struct Recipe: Identifiable, Hashable {
+
+struct Recipe: Identifiable, Hashable, Encodable, Decodable {
     let id: UUID
     let name: String
     let imageURL: String
@@ -137,13 +138,33 @@ struct Recipe: Identifiable, Hashable {
         )
     }
 }
-struct Ingredient: Hashable {
+struct Ingredient: Hashable, Codable {
     let name: String
     let quantity: String
 }
 
-struct RecipeStep: Hashable {
+struct RecipeStep: Hashable, Codable {
     let title: String
     let description: String
 }
 
+func saveRecipes(for userId: String, recipes: [Recipe]) {
+    let key = "recipes_\(userId)"
+
+    do {
+        let data = try JSONEncoder().encode(recipes)
+        UserDefaults.standard.set(data, forKey: key)
+    } catch {
+        print(error)
+    }
+}
+
+func loadRecipes(for userId: String) -> [Recipe] {
+    let key = "recipes_\(userId)"
+
+    guard let data = UserDefaults.standard.data(forKey: key) else {
+        return []
+    }
+
+    return (try? JSONDecoder().decode([Recipe].self, from: data)) ?? []
+}
