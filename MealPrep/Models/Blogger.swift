@@ -7,12 +7,14 @@
 
 import Foundation
 
-struct Blogger: Identifiable {
+struct Blogger: Identifiable, Hashable {
     let id: UUID
     let name: String
     let imageURL: String
     let bio: String
     let followers: Int
+    let following: Int
+    let recipeCount: Int
     let specialties: [String]
     var isFollowing: Bool = false
 }

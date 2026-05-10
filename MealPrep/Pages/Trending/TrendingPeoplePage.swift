@@ -10,94 +10,120 @@ import SwiftUI
 struct TrendingPeoplePage: View {
     @State private var searchText = ""
     @State private var selectedFilter = "All Creators"
+    @State private var selectedBlogger: Blogger? = nil
+    @State private var followingIDs: Set<UUID> = []
     
     let filters = ["All Creators", "Vegan Expert", "Pastry Chef", "Meal Prep"]
     
     var filteredBloggers: [Blogger] {
-        if selectedFilter == "All Creators" {
-            return BloggerMockData.bloggers
+        var bloggers = BloggerMockData.bloggers
+        
+        if selectedFilter != "All Creators" {
+            bloggers = bloggers.filter { blogger in
+                blogger.specialties.contains { specialty in
+                    specialty.lowercased() == selectedFilter.lowercased()
+                }
+            }
         }
-        return BloggerMockData.bloggers.filter {
-            $0.specialties.contains(selectedFilter)
+        
+        if !searchText.isEmpty {
+            bloggers = bloggers.filter {
+                $0.name.lowercased().contains(searchText.lowercased()) ||
+                $0.bio.lowercased().contains(searchText.lowercased()) ||
+                $0.specialties.contains { $0.lowercased().contains(searchText.lowercased()) }
+            }
         }
+        
+        return bloggers
     }
     
     var body: some View {
         VStack(spacing: 0) {
             
-            // MARK: - Search Bar
             SearchBarView(searchText: $searchText)
                 .padding(.horizontal, Theme.Spacing.md)
                 .padding(.vertical, Theme.Spacing.sm)
             
-            ScrollView {
-                VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
-                    
-                    // MARK: - Header
-                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                        Text("Trending People")
-                            .font(Theme.Typography.hero)
-                            .foregroundStyle(Theme.Colors.textPrimary)
-                        Text("Discover the most inspiring culinary creators this week.")
-                            .font(Theme.Typography.body)
-                            .foregroundStyle(Theme.Colors.textSecondary)
-                    }
-                    .padding(.horizontal, Theme.Spacing.md)
-                    
-                    // MARK: - Filter Chips
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: Theme.Spacing.sm) {
-                            ForEach(filters, id: \.self) { filter in
-                                Button {
-                                    selectedFilter = filter
-                                } label: {
-                                    Text(filter)
-                                        .font(Theme.Typography.body)
-                                        .foregroundStyle(
-                                            selectedFilter == filter
-                                            ? Theme.Colors.background
-                                            : Theme.Colors.textSecondary
-                                        )
-                                        .padding(.horizontal, Theme.Spacing.md)
-                                        .padding(.vertical, Theme.Spacing.xs)
-                                        .background(
-                                            selectedFilter == filter
-                                            ? Theme.Colors.primary
-                                            : Theme.Colors.background
-                                        )
-                                        .clipShape(Capsule())
-                                        .overlay {
-                                            if selectedFilter != filter {
-                                                Capsule()
-                                                    .stroke(Theme.Colors.divider, lineWidth: 1.5)
-                                            }
-                                        }
-                                }
-                            }
-                        }
-                        .padding(.horizontal, Theme.Spacing.md)
-                    }
-                    
-                    // MARK: - Blogger Cards
-                    VStack(spacing: Theme.Spacing.md) {
-                        ForEach(filteredBloggers) { blogger in
-                            BloggerFullCard(blogger: blogger)
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                Text("Trending People")
+                    .font(Theme.Typography.hero)
+                    .foregroundStyle(Theme.Colors.textPrimary)
+                Text("Discover the most inspiring culinary creators this week.")
+                    .font(Theme.Typography.body)
+                    .foregroundStyle(Theme.Colors.textSecondary)
+            }
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.vertical, Theme.Spacing.sm)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: Theme.Spacing.sm) {
+                    ForEach(filters, id: \.self) { filter in
+                        Button {
+                            selectedFilter = filter
+                        } label: {
+                            Text(filter)
+                                .font(Theme.Typography.body)
+                                .foregroundStyle(
+                                    selectedFilter == filter
+                                    ? Theme.Colors.background
+                                    : Theme.Colors.textSecondary
+                                )
                                 .padding(.horizontal, Theme.Spacing.md)
+                                .padding(.vertical, Theme.Spacing.xs)
+                                .background(
+                                    selectedFilter == filter
+                                    ? Theme.Colors.primary
+                                    : Theme.Colors.background
+                                )
+                                .clipShape(Capsule())
+                                .overlay {
+                                    if selectedFilter != filter {
+                                        Capsule()
+                                            .stroke(Theme.Colors.divider, lineWidth: 1.5)
+                                    }
+                                }
                         }
                     }
                 }
-                .padding(.vertical, Theme.Spacing.md)
+                .padding(.horizontal, Theme.Spacing.md)
             }
+            .padding(.vertical, Theme.Spacing.sm)
+            
+            Divider()
+            
+            List(filteredBloggers) { blogger in
+                BloggerFullCard(
+                    blogger: blogger,
+                    isFollowing: followingIDs.contains(blogger.id),
+                    onTap: { selectedBlogger = blogger },
+                    onFollow: {
+                        if followingIDs.contains(blogger.id) {
+                            followingIDs.remove(blogger.id)
+                        } else {
+                            followingIDs.insert(blogger.id)
+                        }
+                    }
+                )
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                .listRowSeparator(.hidden)
+                .listRowBackground(Theme.Colors.background)
+            }
+            .listStyle(.plain)
         }
         .background(Theme.Colors.background)
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(item: $selectedBlogger) { blogger in
+            BloggerProfileView(blogger: blogger)
+        }
     }
 }
 
 // MARK: - Full Blogger Card
 struct BloggerFullCard: View {
     let blogger: Blogger
-    @State private var isFollowing = false
+    var isFollowing: Bool
+    var onTap: (() -> Void)? = nil
+    var onFollow: (() -> Void)? = nil
     
     var followersText: String {
         if blogger.followers >= 1000 {
@@ -112,9 +138,7 @@ struct BloggerFullCard: View {
             // Image
             ZStack(alignment: .topLeading) {
                 AsyncImage(url: URL(string: blogger.imageURL)) { image in
-                    image
-                        .resizable()
-                        .scaledToFill()
+                    image.resizable().scaledToFill()
                 } placeholder: {
                     Rectangle()
                         .fill(Theme.Colors.surface)
@@ -128,7 +152,6 @@ struct BloggerFullCard: View {
                 .frame(height: 180)
                 .clipped()
                 
-                // Top Trending badge
                 Text("Top Trending")
                     .font(Theme.Typography.micro)
                     .foregroundStyle(Theme.Colors.background)
@@ -139,10 +162,8 @@ struct BloggerFullCard: View {
                     .padding(Theme.Spacing.sm)
             }
             
-            // Info
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 
-                // Name + followers
                 HStack {
                     Text(blogger.name)
                         .font(Theme.Typography.heading)
@@ -158,13 +179,11 @@ struct BloggerFullCard: View {
                     }
                 }
                 
-                // Bio
                 Text(blogger.bio)
                     .font(Theme.Typography.body)
                     .foregroundStyle(Theme.Colors.textSecondary)
                     .lineLimit(3)
                 
-                // Specialty tags
                 HStack(spacing: Theme.Spacing.xs) {
                     ForEach(blogger.specialties, id: \.self) { specialty in
                         Text(specialty)
@@ -178,23 +197,22 @@ struct BloggerFullCard: View {
                 }
                 
                 // Follow button
-                Button {
-                    isFollowing.toggle()
-                } label: {
-                    Text(isFollowing ? "Following" : "Follow")
-                        .font(Theme.Typography.subhead)
-                        .foregroundStyle(isFollowing ? Theme.Colors.primary : Theme.Colors.background)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, Theme.Spacing.sm)
-                        .background(isFollowing ? Theme.Colors.background : Theme.Colors.primary)
-                        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.pill))
-                        .overlay {
-                            if isFollowing {
-                                RoundedRectangle(cornerRadius: Theme.Radius.pill)
-                                    .stroke(Theme.Colors.primary, lineWidth: 1.5)
-                            }
+                Text(isFollowing ? "Following" : "Follow")
+                    .font(Theme.Typography.subhead)
+                    .foregroundStyle(isFollowing ? Theme.Colors.primary : Theme.Colors.background)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Theme.Spacing.sm)
+                    .background(isFollowing ? Theme.Colors.background : Theme.Colors.primary)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.pill))
+                    .overlay {
+                        if isFollowing {
+                            RoundedRectangle(cornerRadius: Theme.Radius.pill)
+                                .stroke(Theme.Colors.primary, lineWidth: 1.5)
                         }
-                }
+                    }
+                    .onTapGesture {
+                        onFollow?()
+                    }
             }
             .padding(Theme.Spacing.md)
         }
@@ -203,6 +221,9 @@ struct BloggerFullCard: View {
         .overlay {
             RoundedRectangle(cornerRadius: Theme.Radius.md)
                 .stroke(Theme.Colors.divider, lineWidth: 1)
+        }
+        .onTapGesture {
+            onTap?()
         }
     }
 }

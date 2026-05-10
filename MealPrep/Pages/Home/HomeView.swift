@@ -9,43 +9,52 @@ import SwiftUI
 
 struct HomeView: View {
     @State private var searchText = ""
-    @State private var selectedCuisine = "Italian"
+    @State private var selectedCuisine = "All"
     @State private var selectedRecipe: Recipe? = nil
     
     
-    let cuisines = ["Italian", "Mexican", "Vegan", "Japanese", "Chinese"]
+    let cuisines = ["All", "Italian", "Mexican", "Vegan", "Japanese", "Chinese"]
+    
+    var filteredRecipes: [Recipe] {
+        var recipes = MockRecipes.all
+            
+            // Filter by cuisine
+            if selectedCuisine != "All" {
+                recipes = recipes.filter {
+                    $0.cuisine.lowercased() == selectedCuisine.lowercased()
+                }
+            }
+            
+            // Filter by search text
+            if !searchText.isEmpty {
+                recipes = recipes.filter {
+                    $0.name.lowercased().contains(searchText.lowercased()) ||
+                    $0.cuisine.lowercased().contains(searchText.lowercased()) ||
+                    $0.tags.contains { $0.lowercased().contains(searchText.lowercased()) }
+                }
+            }
+            
+            return recipes
+    }
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 
                 // Top Bar
-                HStack {
-                    Button {
-                    } label: {
-                        Circle()
-                            .fill(Theme.Colors.surface)
-                            .frame(width: 32, height: 32)
-                            .overlay {
-                                Image(systemName: "person.fill")
-                                    .foregroundStyle(Theme.Colors.textSecondary)
-                                    .font(.system(size: 14))
-                            }
-                    }
-                    
-                    Spacer()
-                    
+                ZStack {
                     Text("MealPrep")
                         .font(Theme.Typography.heading)
                         .foregroundStyle(Theme.Colors.primary)
                     
-                    Spacer()
-                    
-                    Button {
-                    } label: {
-                        Image(systemName: "bell")
-                            .foregroundStyle(Theme.Colors.textPrimary)
-                            .font(.system(size: 18))
+                    HStack {
+                        Button {
+                        } label: {
+                            Image(systemName: "bell")
+                                .foregroundStyle(Theme.Colors.textPrimary)
+                                .font(.system(size: 18))
+                        }
+                        Spacer()
                     }
                 }
                 .padding(.horizontal, Theme.Spacing.md)
@@ -68,7 +77,7 @@ struct HomeView: View {
                         
                         RecipeCardCarousel(
                             title: "What's Trending",
-                            recipes: MockRecipes.all,
+                            recipes: filteredRecipes,
                             onRecipeTap: { recipe in
                                 selectedRecipe = recipe
                             }

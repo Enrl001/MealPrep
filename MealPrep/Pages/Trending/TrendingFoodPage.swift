@@ -14,11 +14,25 @@ struct TrendingFoodPage: View {
     let filters = ["All Trending", "Breakfast", "Lunch", "Dinner", "Snack"]
     
     var filteredRecipes: [Recipe] {
-        let trending = MockRecipes.all.filter { $0.isTrending }
-        if selectedFilter == "All Trending" {
-            return trending
-        }
-        return trending.filter { $0.mealType.lowercased() == selectedFilter.lowercased() }
+        var recipes = MockRecipes.all.filter { $0.isTrending }
+            
+            // Filter by meal type
+            if selectedFilter != "All Trending" {
+                recipes = recipes.filter {
+                    $0.mealType.lowercased() == selectedFilter.lowercased()
+                }
+            }
+            
+            // Filter by search text
+            if !searchText.isEmpty {
+                recipes = recipes.filter {
+                    $0.name.lowercased().contains(searchText.lowercased()) ||
+                    $0.cuisine.lowercased().contains(searchText.lowercased()) ||
+                    $0.tags.contains { $0.lowercased().contains(searchText.lowercased()) }
+                }
+            }
+            
+            return recipes
     }
     
     var body: some View {
@@ -45,19 +59,17 @@ struct TrendingFoodPage: View {
                     
                     // MARK: - Top 3 Featured
                     if filteredRecipes.count > 0 {
-                        // First recipe — large card
                         TrendingLargeCard(recipe: filteredRecipes[0]) {
-                            selectedRecipe = filteredRecipes[0]
+                                selectedRecipe = filteredRecipes[0]
                         }
                         .padding(.horizontal, Theme.Spacing.md)
                     }
-                    
                     // Second + Third — small horizontal cards
                     if filteredRecipes.count > 1 {
                         VStack(spacing: Theme.Spacing.sm) {
                             ForEach(filteredRecipes.dropFirst().prefix(2)) { recipe in
-                                TrendingSmallCard(recipe: recipe) {
-                                    selectedRecipe = recipe
+                                TrendingSmallCard(recipe: recipe){
+                                        selectedRecipe = recipe
                                 }
                             }
                         }
@@ -69,6 +81,7 @@ struct TrendingFoodPage: View {
                         HStack(spacing: Theme.Spacing.sm) {
                             ForEach(filters, id: \.self) { filter in
                                 Button {
+                                    selectedRecipe = nil
                                     selectedFilter = filter
                                 } label: {
                                     Text(filter)
@@ -101,8 +114,8 @@ struct TrendingFoodPage: View {
                     if filteredRecipes.count > 3 {
                         VStack(spacing: Theme.Spacing.md) {
                             ForEach(filteredRecipes.dropFirst(3)) { recipe in
-                                TrendingLargeCard(recipe: recipe) {
-                                    selectedRecipe = recipe
+                                TrendingLargeCard(recipe: recipe){
+                                        selectedRecipe = recipe
                                 }
                                 .padding(.horizontal, Theme.Spacing.md)
                             }
@@ -114,8 +127,13 @@ struct TrendingFoodPage: View {
         }
         .background(Theme.Colors.background)
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(item: $selectedRecipe) { recipe in
-            RecipeDetailView(recipe: recipe)
+        .navigationDestination(isPresented: Binding(
+            get: { selectedRecipe != nil },
+            set: { if !$0 { selectedRecipe = nil } }
+        )) {
+            if let recipe = selectedRecipe {
+                RecipeDetailView(recipe: recipe)
+            }
         }
     }
 }
@@ -124,6 +142,7 @@ struct TrendingFoodPage: View {
 struct TrendingLargeCard: View {
     let recipe: Recipe
     var onTap: (() -> Void)? = nil
+    @State private var isLiked = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
@@ -183,10 +202,12 @@ struct TrendingLargeCard: View {
                     Spacer()
                     
                     Button {
+                        isLiked.toggle()
                     } label: {
-                        Image(systemName: "heart")
-                            .foregroundStyle(Theme.Colors.textSecondary)
+                        Image(systemName: isLiked ? "heart.fill" : "heart")
+                            .foregroundStyle(isLiked ? Theme.Colors.tertiary : Theme.Colors.textSecondary)
                     }
+                    .buttonStyle(.plain)
                 }
                 
                 HStack(spacing: Theme.Spacing.xs) {
@@ -207,6 +228,7 @@ struct TrendingLargeCard: View {
                 }
             }
         }
+        .contentShape(Rectangle())
         .onTapGesture {
             onTap?()
         }
@@ -217,6 +239,8 @@ struct TrendingLargeCard: View {
 struct TrendingSmallCard: View {
     let recipe: Recipe
     var onTap: (() -> Void)? = nil
+    @State private var isLiked = false
+
     
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
@@ -257,6 +281,14 @@ struct TrendingSmallCard: View {
             }
             
             Spacer()
+            
+            Button {
+                isLiked.toggle()
+            } label: {
+                Image(systemName: isLiked ? "heart.fill" : "heart")
+                    .foregroundStyle(isLiked ? Theme.Colors.tertiary : Theme.Colors.textSecondary)
+            }
+            .buttonStyle(.plain)
         }
         .padding(Theme.Spacing.sm)
         .background(Theme.Colors.background)
