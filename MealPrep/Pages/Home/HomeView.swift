@@ -11,7 +11,9 @@ struct HomeView: View {
     @State private var searchText = ""
     @State private var selectedCuisine = "All"
     @State private var selectedRecipe: Recipe? = nil
-    
+    @State private var authManager = AuthManager.shared
+    @State private var showNotifications = false
+
     
     let cuisines = ["All", "Italian", "Mexican", "Vegan", "Japanese", "Chinese"]
     
@@ -49,6 +51,7 @@ struct HomeView: View {
                     
                     HStack {
                         Button {
+                            showNotifications = true
                         } label: {
                             Image(systemName: "bell")
                                 .foregroundStyle(Theme.Colors.textPrimary)
@@ -87,12 +90,15 @@ struct HomeView: View {
                             bloggers: BloggerMockData.bloggers
                         )
                         
-                        InventorySuggestionsCarousel(
-                            inventory: DefaultInventoryItems.all,
-                            onRecipeTap: { recipe in
-                                selectedRecipe = recipe
-                            }
-                        )
+                        if authManager.isLoggedIn {
+                            InventorySuggestionsCarousel(
+                                inventory: DefaultInventoryItems.all,
+                                onRecipeTap: { recipe in
+                                    selectedRecipe = recipe
+                                }
+                            )
+                        }
+                        
                     }
                     .padding(.vertical, Theme.Spacing.md)
                 }
@@ -101,6 +107,9 @@ struct HomeView: View {
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(item: $selectedRecipe) { recipe in
                 RecipeDetailView(recipe: recipe)
+            }
+            .navigationDestination(isPresented: $showNotifications) {
+                NotificationsView()
             }
         }
     }
