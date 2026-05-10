@@ -86,6 +86,13 @@ struct HomeView: View {
                         TrendingPeopleCarousel(
                             bloggers: BloggerMockData.bloggers
                         )
+                        
+                        InventorySuggestionsCarousel(
+                            inventory: DefaultInventoryItems.all,
+                            onRecipeTap: { recipe in
+                                selectedRecipe = recipe
+                            }
+                        )
                     }
                     .padding(.vertical, Theme.Spacing.md)
                 }
