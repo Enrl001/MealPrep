@@ -71,6 +71,7 @@ struct ProfileView: View {
                 }
             }
             .environmentObject(authViewModel)
+            .environment(userLibrary)
         }
         .onAppear {
             currentUser = authViewModel.currentUser
@@ -287,6 +288,7 @@ struct ProfileView: View {
                     authViewModel.continueAsGuest()
                 }
             )
+            .environment(userLibrary)
         }
     }
 

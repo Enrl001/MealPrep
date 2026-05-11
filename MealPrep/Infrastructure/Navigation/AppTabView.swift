@@ -8,7 +8,8 @@ import SwiftUI
 
 struct AppTabView: View {
     @StateObject private var authViewModel = AuthViewModel()
-
+    var userLibrary = UserLibrary.shared
+    
     var body: some View {
         TabView {
             PotluckView()
@@ -33,6 +34,7 @@ struct AppTabView: View {
                 }
         }
         .environmentObject(authViewModel)
+        .environment(userLibrary)
         .tint(Theme.Colors.primary)
     }
 }
