@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 struct GroceryListView: View {
+    @EnvironmentObject private var authViewModel: AuthViewModel
     @StateObject private var viewModel = GroceryListViewModel()
 
     var body: some View {
@@ -54,6 +55,9 @@ struct GroceryListView: View {
             .toolbar(.hidden, for: .navigationBar)
         }
         .onAppear {
+            viewModel.reloadCurrentWeek()
+        }
+        .onChange(of: authViewModel.currentUser?.id) { _, _ in
             viewModel.reloadCurrentWeek()
         }
     }

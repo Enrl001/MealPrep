@@ -69,6 +69,7 @@ class AuthViewModel: ObservableObject {
     }
 
     func logout() {
+        UserDefaultManager.shared.clearScheduleAndGroceryData()
         UserDefaults.standard.removeObject(forKey: "currentUser")
         setGuestMode(false)
         currentUser = nil

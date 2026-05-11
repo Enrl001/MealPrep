@@ -19,6 +19,12 @@ struct AddMealSheet: View {
     @State private var repeatWeekly = true
     @State private var selectedRepeatDays: Set<String> = ["M0", "W2", "F4"]
 
+    private let guestMealLimit = 5
+
+    private var isGuestLimitReached: Bool {
+        authViewModel.currentUser == nil && viewModel.mealEvents.count >= guestMealLimit
+    }
+
     init(viewModel: ScheduleViewModel, recipe: Recipe? = nil) {
         self.viewModel = viewModel
         self.recipe = recipe
@@ -198,32 +204,44 @@ struct AddMealSheet: View {
     }
 
     private var addMealButton: some View {
-        Button {
-            let finalName = recipeName.isEmpty ? "New Meal" : recipeName
-            let missingIngredients = missingIngredientsForRecipe()
+        VStack(spacing: Theme.Spacing.sm) {
+            if isGuestLimitReached {
+                Text("Guests can schedule up to \(guestMealLimit) meals. Log in to add more.")
+                    .font(Theme.Typography.caption)
+                    .foregroundColor(Theme.Colors.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
 
-            viewModel.addMeal(
-                recipeName: finalName,
-                mealType: selectedMealType,
-                day: selectedDay,
-                time: selectedTime,
-                recipe: recipe,
-                ingredients: recipe?.ingredients ?? [],
-                missingIngredients: missingIngredients
-            )
+            Button {
+                guard !isGuestLimitReached else { return }
 
-            notifyForMissingIngredientsIfNeeded(missingIngredients)
-            syncRecipeIngredientsToGroceryList()
+                let finalName = recipeName.isEmpty ? "New Meal" : recipeName
+                let missingIngredients = missingIngredientsForRecipe()
 
-            dismiss()
-        } label: {
-            Text("Add to Schedule")
-                .font(Theme.Typography.subhead)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Theme.Colors.primary)
-                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
+                viewModel.addMeal(
+                    recipeName: finalName,
+                    mealType: selectedMealType,
+                    day: selectedDay,
+                    time: selectedTime,
+                    recipe: recipe,
+                    ingredients: recipe?.ingredients ?? [],
+                    missingIngredients: missingIngredients
+                )
+
+                notifyForMissingIngredientsIfNeeded(missingIngredients)
+                syncRecipeIngredientsToGroceryList()
+
+                dismiss()
+            } label: {
+                Text("Add to Schedule")
+                    .font(Theme.Typography.subhead)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(isGuestLimitReached ? Theme.Colors.textTertiary : Theme.Colors.primary)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
+            }
+            .disabled(isGuestLimitReached)
         }
     }
 

@@ -72,7 +72,8 @@ struct HomeView: View {
                         
                         if authVM.currentUser != nil {
                             InventorySuggestionsCarousel(
-                                inventory: DefaultInventoryItems.all, recipes: <#[Recipe]#>,
+                                inventory: DefaultInventoryItems.all,
+                                recipes: filteredRecipes,
                                 onRecipeTap: { recipe in
                                     selectedRecipe = recipe
                                 }

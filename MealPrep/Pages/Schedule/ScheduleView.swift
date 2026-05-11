@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ScheduleView: View {
     @EnvironmentObject private var appRouter: AppRouter
+    @EnvironmentObject private var authViewModel: AuthViewModel
     @StateObject private var viewModel = ScheduleViewModel()
     @State private var showAddMealSheet = false
     @State private var recipeToSchedule: Recipe?
@@ -50,7 +51,11 @@ struct ScheduleView: View {
             .onChange(of: appRouter.recipeToSchedule?.id) { _, _ in
                 presentRecipeToScheduleIfNeeded()
             }
+            .onChange(of: authViewModel.currentUser?.id) { _, _ in
+                viewModel.reloadCurrentWeek()
+            }
             .onAppear {
+                viewModel.reloadCurrentWeek()
                 presentRecipeToScheduleIfNeeded()
             }
         }
@@ -63,26 +68,10 @@ struct ScheduleView: View {
     }
 
     private var headerView: some View {
-        VStack(spacing: Theme.Spacing.md) {
-            HStack {
-                Circle()
-                    .fill(Theme.Colors.primaryLight)
-                    .frame(width: 48, height: 48)
-                    .overlay(Text("👨‍🍳").font(.title2))
+        VStack(spacing: Theme.Spacing.sm) {
+            AppHeaderView()
 
-                Text("MealPrep")
-                    .font(Theme.Typography.heading)
-                    .foregroundColor(Theme.Colors.primary)
-
-                Spacer()
-
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(Theme.Colors.textSecondary)
-
-                Image(systemName: "bell")
-                    .foregroundColor(Theme.Colors.textSecondary)
-            }
-            .padding(.horizontal, Theme.Spacing.md)
+            Divider()
 
             WeekNavigatorView(
                 weekLabel: viewModel.weekLabel,
@@ -91,8 +80,8 @@ struct ScheduleView: View {
                 onNextWeek: viewModel.moveToNextWeek
             )
             .padding(.horizontal, Theme.Spacing.md)
+            .padding(.top, Theme.Spacing.xs)
         }
-        .padding(.top, Theme.Spacing.md)
         .padding(.bottom, Theme.Spacing.sm)
         .background(Theme.Colors.background)
     }

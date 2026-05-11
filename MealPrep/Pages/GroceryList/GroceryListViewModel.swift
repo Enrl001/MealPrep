@@ -317,6 +317,12 @@ final class UserDefaultManager {
         defaults.set(data, forKey: mealEventsKey(forWeekID: weekID))
     }
 
+    func clearScheduleAndGroceryData() {
+        for key in defaults.dictionaryRepresentation().keys where key == groceryItemsKey || key == mealEventsKey || key.hasPrefix("\(groceryItemsKey).") || key.hasPrefix("\(mealEventsKey).") {
+            defaults.removeObject(forKey: key)
+        }
+    }
+
     static let defaultGroceryItems: [GroceryItem] = [
         GroceryItem(name: "Baby Spinach", quantity: "1 bag", note: "For salads", category: .produce),
         GroceryItem(name: "Cherry Tomatoes", quantity: "250 g", category: .produce),

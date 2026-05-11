@@ -90,6 +90,13 @@ final class ScheduleViewModel: ObservableObject {
         saveCurrentWeek()
     }
 
+    func reloadCurrentWeek() {
+        mealEvents = UserDefaultManager.shared.loadMealEvents(
+            forWeekID: Self.weekID(for: selectedWeekStart, calendar: calendar),
+            fallbackEvents: Self.defaultEventsForWeek(selectedWeekStart, calendar: calendar)
+        )
+    }
+
     func moveToPreviousWeek() {
         moveWeek(by: -1)
     }

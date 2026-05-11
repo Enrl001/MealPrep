@@ -8,19 +8,11 @@ import SwiftUI
 
 struct AppTabView: View {
     @StateObject private var authViewModel = AuthViewModel()
-    @State private var selectedTab = AppTab.home
+    @StateObject private var router = AppRouter()
     var userLibrary = UserLibrary.shared
-
-    private enum AppTab {
-        case potluck
-        case grocery
-        case home
-        case schedule
-        case profile
-    }
     
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $router.selectedTab) {
             PotluckView()
                 .tabItem {
                     Label("Potluck", systemImage: "fork.knife")
@@ -53,7 +45,7 @@ struct AppTabView: View {
                 .tag(AppTab.profile)
         }
         .environmentObject(authViewModel)
-        .environmentObject(AppRouter)
+        .environmentObject(router)
         .environment(userLibrary)
         .tint(Theme.Colors.primary)
     }
