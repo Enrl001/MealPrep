@@ -29,8 +29,6 @@ class AuthViewModel: ObservableObject {
         currentUser = loadCurrentUser()
     }
 
-    // MARK: - SIGN UP
-
     func signUp() {
 
         let user = User(
@@ -70,8 +68,6 @@ class AuthViewModel: ObservableObject {
         }
     }
 
-    // MARK: - LOGOUT
-
     func logout() {
         UserDefaults.standard.removeObject(forKey: "currentUser")
         setGuestMode(false)
@@ -88,8 +84,6 @@ class AuthViewModel: ObservableObject {
         UserDefaults.standard.set(isEnabled, forKey: guestModeKey)
     }
 }
-
-// MARK: - STORAGE
 
 extension AuthViewModel {
 

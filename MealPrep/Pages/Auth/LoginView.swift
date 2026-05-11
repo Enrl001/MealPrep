@@ -26,7 +26,6 @@ struct LoginView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 12)
 
-                // MARK: - Hero Image
                 ZStack(alignment: .bottomLeading) {
                     // Hero food image
                     Image("mealprep")
@@ -54,7 +53,6 @@ struct LoginView: View {
                     .padding(.bottom, 40)
                 }
 
-                // MARK: - Tagline
                 Text("Start your culinary journey.")
                     .font(.system(size: 14))
                     .foregroundColor(.secondary)
@@ -63,7 +61,6 @@ struct LoginView: View {
                     .padding(.top, 12)
                     .padding(.bottom, 24)
 
-                // MARK: - Welcome Header
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Welcome back")
                         .font(.system(size: 30, weight: .bold))
@@ -77,7 +74,6 @@ struct LoginView: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24)
 
-                // MARK: - Form Fields
                 VStack(spacing: 14) {
 
                     // Email
@@ -123,19 +119,6 @@ struct LoginView: View {
                 }
                 .padding(.horizontal, 24)
 
-                // MARK: - Forgot Password
-//                Button {
-//                    // Handle forgot password
-//                } label: {
-//                    Text("Forgot Password?")
-//                        .font(.system(size: 14, weight: .medium))
-//                        .foregroundColor(.orange)
-//                }
-//                .frame(maxWidth: .infinity, alignment: .trailing)
-//                .padding(.horizontal, 24)
-//                .padding(.top, 10)
-
-                // MARK: - Login Button
                 Button {
                     authVM.login(email: email, password: password)
                 } label: {
@@ -150,7 +133,6 @@ struct LoginView: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 16)
 
-                // MARK: - Error Message
                 if !authVM.errorMessage.isEmpty {
                     Text(authVM.errorMessage)
                         .font(.system(size: 14))
@@ -159,7 +141,6 @@ struct LoginView: View {
                         .padding(.top, 8)
                 }
 
-                // MARK: - Sign Up Link
                 HStack(spacing: 4) {
                     Text("Don't have an account?")
                         .foregroundColor(.secondary)

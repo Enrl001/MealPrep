@@ -19,7 +19,6 @@ struct AuthPopupView: View {
 
         ZStack {
 
-            // Background Blur
             Color.black.opacity(0.25)
                 .ignoresSafeArea()
 
@@ -61,8 +60,6 @@ struct AuthPopupView: View {
                         .offset(x: 10, y: 10)
                 }
 
-                // MARK: - Title
-
                 VStack(spacing: 12) {
 
                     Text("Join the MealPrep\nCommunity")
@@ -76,8 +73,6 @@ struct AuthPopupView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                 }
-
-                // MARK: - Buttons
 
                 VStack(spacing: 18) {
 

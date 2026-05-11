@@ -56,9 +56,10 @@ struct PotluckDetailsView: View {
         .toolbar(.hidden, for: .navigationBar)
         .onAppear(perform: loadContributedRecipes)
         .sheet(isPresented: $showRecipePicker) {
-            PotluckRecipePickerSheet(selectedRecipes: recipes) { recipe in
-                addRecipe(recipe)
-            }
+            PotluckRecipePickerSheet(
+                recipes: $contributedRecipes,
+                storageKey: recipeStorageKey
+            )
         }
         .sheet(isPresented: $showPeopleList) {
             PeopleComingSheet(names: peopleComing)
@@ -419,28 +420,49 @@ private struct PeopleComingSheet: View {
 }
 
 private struct PotluckRecipePickerSheet: View {
-    let selectedRecipes: [Recipe]
-    let onSelect: (Recipe) -> Void
+    @Binding var recipes: [Recipe]
+    let storageKey: String
 
     @Environment(\.dismiss) private var dismiss
     @State private var searchText = ""
-    @State private var selectedFilter: RecipeFilter = .all
-    @State private var localSelectedRecipes: [Recipe]
+    @State private var selectedFilterTitle = "All"
 
-    init(selectedRecipes: [Recipe], onSelect: @escaping (Recipe) -> Void) {
-        self.selectedRecipes = selectedRecipes
-        self.onSelect = onSelect
-        _localSelectedRecipes = State(initialValue: selectedRecipes)
-    }
+    private let filterTitles = ["All", "Italian", "Mexican", "Vegan", "Japanese", "Chinese"]
 
     private var filteredRecipes: [Recipe] {
         MockRecipes.all.filter { recipe in
-            selectedFilter.includes(recipe)
+            matchesSelectedFilter(recipe)
                 && (searchText.isEmpty
                     || recipe.name.localizedCaseInsensitiveContains(searchText)
                     || recipe.tags.contains { $0.localizedCaseInsensitiveContains(searchText) }
                     || recipe.cuisine.localizedCaseInsensitiveContains(searchText))
         }
+    }
+
+    private func matchesSelectedFilter(_ recipe: Recipe) -> Bool {
+        guard selectedFilterTitle != "All" else { return true }
+
+        let searchableText = ([recipe.name, recipe.cuisine, recipe.mealType] + recipe.tags)
+            .joined(separator: " ")
+            .lowercased()
+
+        let keywords: [String]
+        switch selectedFilterTitle {
+        case "Italian":
+            keywords = ["italian", "pasta", "pizza", "tomato", "basil", "parmesan", "mediterranean", "burrata", "pesto", "risotto", "lasagna"]
+        case "Mexican":
+            keywords = ["mexican", "taco", "salsa", "avocado", "lime", "corn", "bean", "burrito", "quesadilla", "chipotle", "cilantro"]
+        case "Vegan":
+            keywords = ["vegan", "vegetarian", "plant", "tofu", "chickpea", "lentil", "vegetable", "salad", "quinoa", "healthy"]
+        case "Japanese":
+            keywords = ["japanese", "sushi", "ramen", "miso", "soy", "teriyaki", "edamame", "rice bowl", "rice"]
+        case "Chinese":
+            keywords = ["chinese", "noodle", "stir fry", "stir-fry", "soy", "sesame", "dumpling", "fried rice", "rice"]
+        default:
+            keywords = [selectedFilterTitle.lowercased()]
+        }
+
+        return keywords.contains { searchableText.contains($0) }
     }
 
     var body: some View {
@@ -505,30 +527,8 @@ private struct PotluckRecipePickerSheet: View {
     }
 
     private var filterChips: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Theme.Spacing.sm) {
-                ForEach(RecipeFilter.allCases) { filter in
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.15)) {
-                            selectedFilter = filter
-                        }
-                    } label: {
-                        Text(filter.title)
-                            .font(Theme.Typography.micro.weight(.semibold))
-                            .foregroundStyle(selectedFilter == filter ? Theme.Colors.primary : Theme.Colors.textPrimary)
-                            .padding(.horizontal, Theme.Spacing.sm)
-                            .padding(.vertical, Theme.Spacing.xs)
-                            .background(selectedFilter == filter ? Theme.Colors.primaryLight : Theme.Colors.background)
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.sm))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: Theme.Radius.sm)
-                                    .stroke(selectedFilter == filter ? Theme.Colors.primary : Theme.Colors.divider)
-                            )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
+        CuisineFilterChips(cuisines: filterTitles, selected: $selectedFilterTitle)
+            .padding(.horizontal, -Theme.Spacing.md)
     }
 
     private var emptyFilterState: some View {
@@ -556,7 +556,7 @@ private struct PotluckRecipePickerSheet: View {
     }
 
     private func pickerRecipeCard(_ recipe: Recipe) -> some View {
-        let alreadySelected = localSelectedRecipes.contains { $0.id == recipe.id || $0.name == recipe.name }
+        let alreadySelected = recipes.contains { $0.id == recipe.id || $0.name == recipe.name }
 
         return VStack(alignment: .leading, spacing: 0) {
             AsyncImage(url: URL(string: recipe.imageURL)) { image in
@@ -591,10 +591,7 @@ private struct PotluckRecipePickerSheet: View {
                     Spacer()
 
                     Button {
-                        guard !alreadySelected else { return }
-                        localSelectedRecipes.append(recipe)
-                        onSelect(recipe)
-                        dismiss()
+                        addRecipeToPotluck(recipe)
                     } label: {
                         HStack(spacing: Theme.Spacing.xs) {
                             Image(systemName: alreadySelected ? "checkmark" : "plus.circle")
@@ -632,61 +629,24 @@ private struct PotluckRecipePickerSheet: View {
             RoundedRectangle(cornerRadius: Theme.Radius.md)
                 .stroke(Theme.Colors.divider)
         )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            addRecipeToPotluck(recipe)
+        }
+    }
+
+    private func addRecipeToPotluck(_ recipe: Recipe) {
+        guard !recipes.contains(where: { $0.id == recipe.id || $0.name == recipe.name }) else { return }
+        recipes.insert(recipe, at: 0)
+        saveRecipes()
+        dismiss()
+    }
+
+    private func saveRecipes() {
+        guard let encoded = try? JSONEncoder().encode(recipes) else { return }
+        UserDefaults.standard.set(encoded, forKey: storageKey)
     }
 }
 
-private enum RecipeFilter: CaseIterable, Identifiable {
-    case all
-    case mains
-    case sides
-    case desserts
 
-    var id: Self { self }
-
-    var title: String {
-        switch self {
-        case .all:
-            return "All Recipes"
-        case .mains:
-            return "Mains"
-        case .sides:
-            return "Sides"
-        case .desserts:
-            return "Desserts"
-        }
-    }
-
-    func includes(_ recipe: Recipe) -> Bool {
-        switch self {
-        case .all:
-            return true
-        case .mains:
-            return recipeCategory(for: recipe) == .mains
-        case .sides:
-            return recipeCategory(for: recipe) == .sides
-        case .desserts:
-            return recipeCategory(for: recipe) == .desserts
-        }
-    }
-
-    private func recipeCategory(for recipe: Recipe) -> RecipeFilter {
-        if matches(recipe, keywords: ["dessert", "sweet", "cake", "chocolate", "pancake", "honey", "berry", "fruit"]) {
-            return .desserts
-        }
-
-        if matches(recipe, keywords: ["side", "snack", "salad", "toast", "salsa", "slaw", "bread", "quick", "vegetarian"]) {
-            return .sides
-        }
-
-        return .mains
-    }
-
-    private func matches(_ recipe: Recipe, keywords: [String]) -> Bool {
-        let searchableText = ([recipe.name, recipe.cuisine, recipe.mealType] + recipe.tags)
-            .joined(separator: " ")
-            .lowercased()
-
-        return keywords.contains { searchableText.contains($0) }
-    }
-}
 

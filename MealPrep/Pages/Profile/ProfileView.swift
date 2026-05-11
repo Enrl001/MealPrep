@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ProfileView: View {
-    @State private var viewModel = ProfileViewModel()
+    @State private var selectedTab: ProfileTab = .saved
     @State private var showAuthPopup = false
     @State private var currentUser: User?
     @State private var authDestination: AuthDestination?
@@ -87,7 +87,7 @@ struct ProfileView: View {
 
     private var profileDisplayName: String {
         guard let user = currentUser ?? authViewModel.currentUser else {
-            return viewModel.profile.name
+            return "Guest User"
         }
 
         if let name = user.name?.trimmingCharacters(in: .whitespacesAndNewlines), !name.isEmpty {
@@ -265,19 +265,19 @@ struct ProfileView: View {
         HStack(spacing: 0) {
             ForEach(ProfileTab.allCases) { tab in
                 Button {
-                    viewModel.selectedTab = tab
+                    selectedTab = tab
                 } label: {
                     VStack(spacing: Theme.Spacing.sm) {
                         Text(tab.title)
                             .font(Theme.Typography.caption)
                             .foregroundStyle(
-                                viewModel.selectedTab == tab ? Theme.Colors.textPrimary : Theme.Colors.textSecondary
+                                selectedTab == tab ? Theme.Colors.textPrimary : Theme.Colors.textSecondary
                             )
                             .lineLimit(1)
                             .minimumScaleFactor(0.85)
 
                         Rectangle()
-                            .fill(viewModel.selectedTab == tab ? Theme.Colors.primary : .clear)
+                            .fill(selectedTab == tab ? Theme.Colors.primary : .clear)
                             .frame(height: 2)
                     }
                     .frame(maxWidth: .infinity)
@@ -315,7 +315,7 @@ struct ProfileView: View {
 
     @ViewBuilder
     private var tabContent: some View {
-        switch viewModel.selectedTab {
+        switch selectedTab {
         case .saved:
             SavedRecipeTab { recipe in
                 selectedRecipe = recipe
@@ -327,7 +327,7 @@ struct ProfileView: View {
                 selectedRecipe = recipe
             }
         case .followers:
-            FollowersTab(people: viewModel.followers)
+            FollowersTab(people: [])
         case .following:
             FollowingTab()
         }
