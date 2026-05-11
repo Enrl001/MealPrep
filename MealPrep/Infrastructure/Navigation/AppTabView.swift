@@ -53,7 +53,7 @@ struct AppTabView: View {
                 .tag(AppTab.profile)
         }
         .environmentObject(authViewModel)
-        .environmentObject(appRouter)
+        .environmentObject(AppRouter)
         .environment(userLibrary)
         .tint(Theme.Colors.primary)
     }
