@@ -142,7 +142,9 @@ struct TrendingFoodPage: View {
 struct TrendingLargeCard: View {
     let recipe: Recipe
     var onTap: (() -> Void)? = nil
-    @State private var isLiked = false
+    @Environment(UserLibrary.self) private var userLibrary
+    @EnvironmentObject var authVM: AuthViewModel
+    @State private var showGuestGate = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
@@ -202,12 +204,21 @@ struct TrendingLargeCard: View {
                     Spacer()
                     
                     Button {
-                        isLiked.toggle()
+                        if authVM.currentUser != nil {
+                            userLibrary.toggleLike(for: recipe)
+                        } else {
+                            showGuestGate = true
+                        }
                     } label: {
-                        Image(systemName: isLiked ? "heart.fill" : "heart")
-                            .foregroundStyle(isLiked ? Theme.Colors.tertiary : Theme.Colors.textSecondary)
+                        Image(systemName: userLibrary.isLiked(recipe) ? "heart.fill" : "heart")
+                            .foregroundStyle(userLibrary.isLiked(recipe) ? Theme.Colors.tertiary : Theme.Colors.textSecondary)
                     }
                     .buttonStyle(.plain)
+                    .sheet(isPresented: $showGuestGate) {
+                        GuestGateView(action: "like recipes", isPresented: $showGuestGate)
+                            .presentationDetents([.medium])
+                            .environmentObject(authVM)
+                    }
                 }
                 
                 HStack(spacing: Theme.Spacing.xs) {
@@ -239,8 +250,9 @@ struct TrendingLargeCard: View {
 struct TrendingSmallCard: View {
     let recipe: Recipe
     var onTap: (() -> Void)? = nil
-    @State private var isLiked = false
-
+    @Environment(UserLibrary.self) private var userLibrary
+    @EnvironmentObject var authVM: AuthViewModel
+    @State private var showGuestGate = false
     
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
@@ -283,12 +295,21 @@ struct TrendingSmallCard: View {
             Spacer()
             
             Button {
-                isLiked.toggle()
+                if authVM.currentUser != nil {
+                    userLibrary.toggleLike(for: recipe)
+                } else {
+                    showGuestGate = true
+                }
             } label: {
-                Image(systemName: isLiked ? "heart.fill" : "heart")
-                    .foregroundStyle(isLiked ? Theme.Colors.tertiary : Theme.Colors.textSecondary)
+                Image(systemName: userLibrary.isLiked(recipe) ? "heart.fill" : "heart")
+                    .foregroundStyle(userLibrary.isLiked(recipe) ? Theme.Colors.tertiary : Theme.Colors.textSecondary)
             }
             .buttonStyle(.plain)
+            .sheet(isPresented: $showGuestGate) {
+                GuestGateView(action: "like recipes", isPresented: $showGuestGate)
+                    .presentationDetents([.medium])
+                    .environmentObject(authVM)
+            }
         }
         .padding(Theme.Spacing.sm)
         .background(Theme.Colors.background)
@@ -306,5 +327,7 @@ struct TrendingSmallCard: View {
 #Preview {
     NavigationStack {
         TrendingFoodPage()
+            .environmentObject(AuthViewModel())
+            .environment(UserLibrary.shared)
     }
 }

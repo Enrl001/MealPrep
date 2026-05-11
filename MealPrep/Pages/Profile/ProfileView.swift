@@ -12,6 +12,7 @@ struct ProfileView: View {
     @State private var showAuthPopup = false
     @State private var currentUser: User?
     @State private var authDestination: AuthDestination?
+    @Environment(UserLibrary.self) private var userLibrary
     @State private var selectedRecipe: Recipe?
     @EnvironmentObject private var authViewModel: AuthViewModel
 
@@ -293,9 +294,7 @@ struct ProfileView: View {
     private var tabContent: some View {
         switch viewModel.selectedTab {
         case .saved:
-            SavedRecipeTab(recipes: MockRecipes.all) { recipe in
-                selectedRecipe = recipe
-            }
+            SavedRecipeTab()
         case .inventory:
             InventoryTab()
         case .myRecipes:
@@ -305,7 +304,7 @@ struct ProfileView: View {
         case .followers:
             FollowersTab(people: viewModel.followers)
         case .following:
-            FollowingTab(people: viewModel.following)
+            FollowingTab()
         }
     }
 

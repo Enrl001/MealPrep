@@ -9,9 +9,14 @@ import SwiftUI
 
 @main
 struct MealPrepApp: App {
+    @StateObject var authVM = AuthViewModel()
+    var userLibrary = UserLibrary.shared
+    
     var body: some Scene {
         WindowGroup {
             AppTabView()
+                .environmentObject(authVM)
+                .environment(userLibrary)
         }
     }
 }

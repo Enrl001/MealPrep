@@ -8,53 +8,67 @@
 import SwiftUI
 
 struct FollowingTab: View {
-    let people: [ProfilePerson]
-
+    @Environment(UserLibrary.self) private var userLibrary
+    
     var body: some View {
-        LazyVStack(spacing: Theme.Spacing.md) {
-            ForEach(people) { person in
-                HStack(spacing: Theme.Spacing.md) {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [Theme.Colors.primary.opacity(0.22), Theme.Colors.tertiary.opacity(0.12)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 58, height: 58)
-                        .overlay {
-                            Image(systemName: person.imageName)
-                                .resizable()
-                                .scaledToFit()
-                                .foregroundStyle(.white, Theme.Colors.primary.opacity(0.7))
-                                .padding(7)
-                        }
-
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(person.name)
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundStyle(Theme.Colors.textPrimary)
-                        Text(person.handle)
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(Theme.Colors.textSecondary)
-                    }
-
-                    Spacer()
-
-                    Button("Following") {}
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Theme.Colors.primary)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 10)
-                        .background(Theme.Colors.primaryLight)
-                        .clipShape(Capsule())
-                        .buttonStyle(.plain)
-                }
-                .padding(.horizontal, Theme.Spacing.lg)
+        if userLibrary.followedBloggers.isEmpty {
+            VStack(spacing: Theme.Spacing.md) {
+                Image(systemName: "person.slash")
+                    .font(.system(size: 40))
+                    .foregroundStyle(Theme.Colors.textTertiary)
+                Text("Not following anyone yet")
+                    .font(Theme.Typography.heading)
+                    .foregroundStyle(Theme.Colors.textPrimary)
+                Text("Follow bloggers to see them here")
+                    .font(Theme.Typography.body)
+                    .foregroundStyle(Theme.Colors.textSecondary)
             }
+            .padding(.top, Theme.Spacing.xl)
+        } else {
+            LazyVStack(spacing: Theme.Spacing.md) {
+                ForEach(userLibrary.followedBloggers) { blogger in
+                    HStack(spacing: Theme.Spacing.md) {
+                        AsyncImage(url: URL(string: blogger.imageURL)) { image in
+                            image.resizable().scaledToFill()
+                        } placeholder: {
+                            Circle()
+                                .fill(Theme.Colors.surface)
+                                .overlay {
+                                    Image(systemName: "person.fill")
+                                        .foregroundStyle(Theme.Colors.textTertiary)
+                                }
+                        }
+                        .frame(width: 58, height: 58)
+                        .clipShape(Circle())
+                        
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(blogger.name)
+                                .font(.system(size: 17, weight: .semibold))
+                                .foregroundStyle(Theme.Colors.textPrimary)
+                            Text(blogger.specialties.first ?? "")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(Theme.Colors.textSecondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Button {
+                            userLibrary.toggleFollow(for: blogger)
+                        } label: {
+                            Text("Following")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(Theme.Colors.primary)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 10)
+                                .background(Theme.Colors.primaryLight)
+                                .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(.horizontal, Theme.Spacing.lg)
+                }
+            }
+            .padding(.top, Theme.Spacing.lg)
         }
-        .padding(.top, Theme.Spacing.lg)
     }
 }
-
