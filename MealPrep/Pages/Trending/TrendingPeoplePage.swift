@@ -11,7 +11,9 @@ struct TrendingPeoplePage: View {
     @State private var searchText = ""
     @State private var selectedFilter = "All Creators"
     @State private var selectedBlogger: Blogger? = nil
-    @State private var followingIDs: Set<UUID> = []
+    @EnvironmentObject var authVM: AuthViewModel
+    @State private var showGuestGate = false
+    @Environment(UserLibrary.self) private var userLibrary
     
     let filters = ["All Creators", "Vegan Expert", "Pastry Chef", "Meal Prep"]
     
@@ -94,13 +96,13 @@ struct TrendingPeoplePage: View {
             List(filteredBloggers) { blogger in
                 BloggerFullCard(
                     blogger: blogger,
-                    isFollowing: followingIDs.contains(blogger.id),
+                    isFollowing: userLibrary.isFollowing(blogger),
                     onTap: { selectedBlogger = blogger },
                     onFollow: {
-                        if followingIDs.contains(blogger.id) {
-                            followingIDs.remove(blogger.id)
+                        if authVM.currentUser != nil {
+                            userLibrary.toggleFollow(for: blogger)
                         } else {
-                            followingIDs.insert(blogger.id)
+                            showGuestGate = true
                         }
                     }
                 )
@@ -114,6 +116,11 @@ struct TrendingPeoplePage: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(item: $selectedBlogger) { blogger in
             BloggerProfileView(blogger: blogger)
+        }
+        .sheet(isPresented: $showGuestGate) {
+            GuestGateView(action: "follow bloggers", isPresented: $showGuestGate)
+                .presentationDetents([.medium])
+                .environmentObject(authVM)
         }
     }
 }
@@ -135,7 +142,6 @@ struct BloggerFullCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             
-            // Image
             ZStack(alignment: .topLeading) {
                 AsyncImage(url: URL(string: blogger.imageURL)) { image in
                     image.resizable().scaledToFill()
@@ -161,6 +167,9 @@ struct BloggerFullCard: View {
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.sm))
                     .padding(Theme.Spacing.sm)
             }
+            .onTapGesture {
+                onTap?()
+            }
             
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 
@@ -168,6 +177,7 @@ struct BloggerFullCard: View {
                     Text(blogger.name)
                         .font(Theme.Typography.heading)
                         .foregroundStyle(Theme.Colors.textPrimary)
+                        .onTapGesture { onTap?() }
                     Spacer()
                     HStack(spacing: 4) {
                         Image(systemName: "person.2.fill")
@@ -183,6 +193,7 @@ struct BloggerFullCard: View {
                     .font(Theme.Typography.body)
                     .foregroundStyle(Theme.Colors.textSecondary)
                     .lineLimit(3)
+                    .onTapGesture { onTap?() }
                 
                 HStack(spacing: Theme.Spacing.xs) {
                     ForEach(blogger.specialties, id: \.self) { specialty in
@@ -222,14 +233,13 @@ struct BloggerFullCard: View {
             RoundedRectangle(cornerRadius: Theme.Radius.md)
                 .stroke(Theme.Colors.divider, lineWidth: 1)
         }
-        .onTapGesture {
-            onTap?()
-        }
     }
 }
 
 #Preview {
     NavigationStack {
         TrendingPeoplePage()
+            .environmentObject(AuthViewModel())
+            .environment(UserLibrary.shared)
     }
 }

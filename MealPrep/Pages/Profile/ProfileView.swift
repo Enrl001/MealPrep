@@ -13,6 +13,7 @@ struct ProfileView: View {
     @State private var currentUser: User?
     @State private var authDestination: AuthDestination?
     @StateObject private var authViewModel = AuthViewModel()
+    @Environment(UserLibrary.self) private var userLibrary
 
     private enum AuthDestination: Identifiable {
         case login
@@ -167,7 +168,7 @@ struct ProfileView: View {
     private var tabContent: some View {
         switch viewModel.selectedTab {
         case .saved:
-            SavedRecipeTab(recipes: MockRecipes.all)
+            SavedRecipeTab()
         case .inventory:
             InventoryTab()
         case .myRecipes:
@@ -175,7 +176,7 @@ struct ProfileView: View {
         case .followers:
             FollowersTab(people: viewModel.followers)
         case .following:
-            FollowingTab(people: viewModel.following)
+            FollowingTab()
         }
     }
 

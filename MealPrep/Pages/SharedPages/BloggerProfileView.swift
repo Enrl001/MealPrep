@@ -9,7 +9,9 @@ import SwiftUI
 
 struct BloggerProfileView: View {
     let blogger: Blogger
-    @State private var isFollowing = false
+    @Environment(UserLibrary.self) private var userLibrary
+    @EnvironmentObject var authVM: AuthViewModel
+    @State private var showGuestGate = false
     @Environment(\.dismiss) private var dismiss
     
     var followersText: String {
@@ -79,23 +81,34 @@ struct BloggerProfileView: View {
                         Spacer()
                         
                         Button {
-                            isFollowing.toggle()
+                            if authVM.currentUser != nil {
+                                userLibrary.toggleFollow(for: blogger)
+                            } else {
+                                showGuestGate = true
+                            }
                         } label: {
                             HStack(spacing: 4) {
-                                Text(isFollowing ? "Following" : "Follow")
+                                Image(systemName: userLibrary.isFollowing(blogger) ? "checkmark" : "person.badge.plus")
+                                    .font(.system(size: 12))
+                                Text(userLibrary.isFollowing(blogger) ? "Following" : "Follow")
                                     .font(Theme.Typography.caption)
                             }
-                            .foregroundStyle(isFollowing ? Theme.Colors.primary : Theme.Colors.background)
+                            .foregroundStyle(userLibrary.isFollowing(blogger) ? Theme.Colors.primary : Theme.Colors.background)
                             .padding(.horizontal, Theme.Spacing.md)
                             .padding(.vertical, Theme.Spacing.xs)
-                            .background(isFollowing ? Theme.Colors.background : Theme.Colors.primary)
+                            .background(userLibrary.isFollowing(blogger) ? Theme.Colors.background : Theme.Colors.primary)
                             .clipShape(Capsule())
                             .overlay {
-                                if isFollowing {
+                                if userLibrary.isFollowing(blogger) {
                                     Capsule()
                                         .stroke(Theme.Colors.primary, lineWidth: 1.5)
                                 }
                             }
+                        }
+                        .sheet(isPresented: $showGuestGate) {
+                            GuestGateView(action: "follow bloggers", isPresented: $showGuestGate)
+                                .presentationDetents([.medium])
+                                .environmentObject(authVM)
                         }
                     }
                     .padding(.top, 48)
@@ -165,11 +178,14 @@ struct BloggerProfileView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                } label: {
-                    Image(systemName: "square.and.arrow.up")
-                        .foregroundStyle(Theme.Colors.textPrimary)
-                }
+                ShareLink(
+                        item: URL(string: "mealprepapp://blogger/\(blogger.id)") ?? URL(string: "https://mealprep.app")!,
+                        subject: Text(blogger.name),
+                        message: Text("Check out \(blogger.name) on MealPrep!")
+                    ) {
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundStyle(Theme.Colors.textPrimary)
+                    }
             }
         }
     }
@@ -261,5 +277,7 @@ struct BloggerRecipeRow: View {
 #Preview {
     NavigationStack {
         BloggerProfileView(blogger: BloggerMockData.bloggers[0])
+            .environmentObject(AuthViewModel())
+            .environment(UserLibrary.shared)
     }
 }

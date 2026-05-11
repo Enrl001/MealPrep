@@ -14,8 +14,10 @@ import SwiftUI
 
 struct RecipeDetailView: View {
     let recipe: Recipe
-    @State private var isLiked = false
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var authVM: AuthViewModel
+    @State private var showGuestGate = false
+    @Environment(UserLibrary.self) private var userLibrary
 
     var body: some View {
         ScrollView {
@@ -124,18 +126,25 @@ struct RecipeDetailView: View {
         .navigationTitle(recipe.name)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                } label: {
+                ShareLink(
+                    item: URL(string: "mealprepapp://recipe/\(recipe.id)") ?? URL(string: "https://mealprep.app")!,
+                    subject: Text(recipe.name),
+                    message: Text("Check out this recipe: \(recipe.name)")
+                ) {
                     Image(systemName: "square.and.arrow.up")
                         .foregroundStyle(Theme.Colors.textPrimary)
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    isLiked.toggle()
+                    if authVM.currentUser != nil {
+                        userLibrary.toggleLike(for: recipe)
+                    } else {
+                        showGuestGate = true
+                    }
                 } label: {
-                    Image(systemName: isLiked ? "heart.fill" : "heart")
-                        .foregroundStyle(isLiked ? Theme.Colors.tertiary : Theme.Colors.textSecondary)
+                    Image(systemName: userLibrary.isLiked(recipe) ? "heart.fill" : "heart")
+                                .foregroundStyle(userLibrary.isLiked(recipe) ? Theme.Colors.tertiary : Theme.Colors.textPrimary)
                 }
             }
         }
@@ -168,7 +177,13 @@ struct RecipeDetailView: View {
             .background(Theme.Colors.background)
             .overlay(alignment: .top) { Divider() }
         }
+        .sheet(isPresented: $showGuestGate) {
+            GuestGateView(action: "like recipes", isPresented: $showGuestGate)
+                .presentationDetents([.medium])
+                .environmentObject(authVM)
+        }
     }
+        
 }
 
 // MARK: - InfoBox
