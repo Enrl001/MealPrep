@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 struct GroceryListView: View {
-    @State private var viewModel = GroceryListViewModel()
+    @StateObject private var viewModel = GroceryListViewModel()
 
     var body: some View {
         NavigationStack {
@@ -166,4 +166,3 @@ private struct SummaryCard: View {
         )
     }
 }
-

@@ -114,6 +114,7 @@ final class UserDefaultManager {
     static let shared = UserDefaultManager()
 
     private let groceryItemsKey = "groceryItems"
+    private let mealEventsKey = "mealEvents"
     private let defaults: UserDefaults
 
     private init(defaults: UserDefaults = .standard) {
@@ -140,6 +141,26 @@ final class UserDefaultManager {
         defaults.set(data, forKey: groceryItemsKey)
     }
 
+    func loadMealEvents() -> [MealEvent] {
+        guard let data = defaults.data(forKey: mealEventsKey) else {
+            return Self.defaultMealEvents
+        }
+
+        do {
+            return try JSONDecoder().decode([MealEvent].self, from: data)
+        } catch {
+            return Self.defaultMealEvents
+        }
+    }
+
+    func saveMealEvents(_ events: [MealEvent]) {
+        guard let data = try? JSONEncoder().encode(events) else {
+            return
+        }
+
+        defaults.set(data, forKey: mealEventsKey)
+    }
+
     private static let defaultGroceryItems: [GroceryItem] = [
         GroceryItem(name: "Baby Spinach", quantity: "1 bag", note: "For salads", category: .produce),
         GroceryItem(name: "Cherry Tomatoes", quantity: "250 g", category: .produce),
@@ -149,6 +170,12 @@ final class UserDefaultManager {
         GroceryItem(name: "Olive Oil", quantity: "500 ml", category: .pantry),
         GroceryItem(name: "Chicken Breast", quantity: "500 g", category: .meat),
         GroceryItem(name: "Frozen Peas", quantity: "500 g", category: .frozen)
+    ]
+
+    private static let defaultMealEvents: [MealEvent] = [
+        MealEvent(recipeName: "Greek Yogurt Bowl", mealType: .breakfast, day: "Mon", time: "08:30 AM"),
+        MealEvent(recipeName: "Chicken Rice Bowl", mealType: .lunch, day: "Wed", time: "12:30 PM"),
+        MealEvent(recipeName: "Salmon Dinner", mealType: .dinner, day: "Fri", time: "06:30 PM")
     ]
 }
 
