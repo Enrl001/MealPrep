@@ -24,6 +24,18 @@ struct AuthPopupView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 24) {
+                Button {
+                    showPopup = false
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 34, height: 34)
+                        .background(Color(.systemGray6))
+                        .clipShape(Circle())
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .accessibilityLabel("Close")
 
                 ZStack(alignment: .bottomTrailing) {
 

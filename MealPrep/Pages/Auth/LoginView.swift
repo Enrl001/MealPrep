@@ -9,7 +9,10 @@ import SwiftUI
 
 struct LoginView: View {
 
+    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var authVM: AuthViewModel
+    @State private var email = ""
+    @State private var password = ""
     @State private var isPasswordVisible: Bool = false
 
     var onSignUpTap: (() -> Void)?
@@ -18,6 +21,10 @@ struct LoginView: View {
 
         ScrollView {
             VStack(spacing: 0) {
+                closeButton
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
 
                 // MARK: - Hero Image
                 ZStack(alignment: .bottomLeading) {
@@ -74,9 +81,11 @@ struct LoginView: View {
                 VStack(spacing: 14) {
 
                     // Email
-                    TextField("Email Address", text: $authVM.loginEmail)
-                        .autocapitalization(.none)
+                    TextField("Email Address", text: $email)
+                        .textInputAutocapitalization(.never)
                         .keyboardType(.emailAddress)
+                        .textContentType(.username)
+                        .autocorrectionDisabled()
                         .padding(.horizontal, 16)
                         .padding(.vertical, 15)
                         .background(Color(.systemBackground))
@@ -89,9 +98,12 @@ struct LoginView: View {
                     // Password
                     HStack {
                         if isPasswordVisible {
-                            TextField("Password", text: $authVM.loginPassword)
+                            TextField("Password", text: $password)
+                                .textContentType(.password)
+                                .autocorrectionDisabled()
                         } else {
-                            SecureField("Password", text: $authVM.loginPassword)
+                            SecureField("Password", text: $password)
+                                .textContentType(.password)
                         }
                         Button {
                             isPasswordVisible.toggle()
@@ -125,7 +137,7 @@ struct LoginView: View {
 
                 // MARK: - Login Button
                 Button {
-                    authVM.login()
+                    authVM.login(email: email, password: password)
                 } label: {
                     Text("Login")
                         .font(.system(size: 16, weight: .semibold))
@@ -165,5 +177,28 @@ struct LoginView: View {
             }
         }
         .background(Color(.systemGroupedBackground))
+        .onAppear {
+            email = authVM.loginEmail
+            password = authVM.loginPassword
+        }
+        .onChange(of: authVM.currentUser?.id) { _, userID in
+            if userID != nil {
+                dismiss()
+            }
+        }
+    }
+
+    private var closeButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Image(systemName: "xmark")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(.secondary)
+                .frame(width: 34, height: 34)
+                .background(Color(.systemBackground))
+                .clipShape(Circle())
+        }
+        .accessibilityLabel("Close")
     }
 }

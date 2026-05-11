@@ -7,6 +7,8 @@
 import SwiftUI
 
 struct AppTabView: View {
+    @StateObject private var authViewModel = AuthViewModel()
+
     var body: some View {
         TabView {
             PotluckView()
@@ -30,6 +32,7 @@ struct AppTabView: View {
                     Label("Profile", systemImage: "person.crop.circle")
                 }
         }
+        .environmentObject(authViewModel)
         .tint(Theme.Colors.primary)
     }
 }

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "D1FB103B-18E7-4330-9739-7C4BB8AFCE86"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A1CCC424-FD97-4D8F-AF16-5F285B0A39FF"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MealPrep/Infrastructure/Auth/AuthManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "16"
+            endingLineNumber = "16"
+            landmarkName = "AuthManager"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "A1CCC424-FD97-4D8F-AF16-5F285B0A39FF - fc1aa9391b3e60ae"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "MealPrep.AuthManager.__allocating_init() -&gt; MealPrep.AuthManager"
+                  moduleName = "MealPrep.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/enrl/Downloads/MealPrep/MealPrep/Infrastructure/Auth/AuthManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0">
+               </Location>
+               <Location
+                  uuid = "A1CCC424-FD97-4D8F-AF16-5F285B0A39FF - 81a48251828e6c49"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "MealPrep.AuthManager.() -&gt; MealPrep.AuthManager.init() -&gt; MealPrep.AuthManager"
+                  moduleName = "MealPrep.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/enrl/Downloads/MealPrep/@__swiftmacro_8MealPrep11AuthManager10ObservablefMm_.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1"
+                  endingLineNumber = "1">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

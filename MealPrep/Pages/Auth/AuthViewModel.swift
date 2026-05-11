@@ -49,15 +49,18 @@ class AuthViewModel: ObservableObject {
 
     // MARK: - LOGIN
 
-    func login() {
+    func login(email: String? = nil, password: String? = nil) {
 
+        let emailToCheck = email ?? loginEmail
+        let passwordToCheck = password ?? loginPassword
         let users = loadUsers()
 
         if let user = users.first(where: {
-            $0.username == loginEmail &&
-            $0.password == loginPassword
+            $0.username == emailToCheck &&
+            $0.password == passwordToCheck
         }) {
 
+            errorMessage = ""
             saveCurrentUser(user)
             setGuestMode(false)
             currentUser = user

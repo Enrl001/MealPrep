@@ -11,8 +11,7 @@ struct HomeView: View {
     @State private var searchText = ""
     @State private var selectedCuisine = "All"
     @State private var selectedRecipe: Recipe? = nil
-    @State private var authManager = AuthManager.shared
-    @State private var showNotifications = false
+    @EnvironmentObject private var authVM: AuthViewModel
 
     
     let cuisines = ["All", "Italian", "Mexican", "Vegan", "Japanese", "Chinese"]
@@ -43,27 +42,8 @@ struct HomeView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 
-                // Top Bar
-                ZStack {
-                    Text("MealPrep")
-                        .font(Theme.Typography.heading)
-                        .foregroundStyle(Theme.Colors.primary)
-                    
-                    HStack {
-                        Button {
-                            showNotifications = true
-                        } label: {
-                            Image(systemName: "bell")
-                                .foregroundStyle(Theme.Colors.textPrimary)
-                                .font(.system(size: 18))
-                        }
-                        Spacer()
-                    }
-                }
-                .padding(.horizontal, Theme.Spacing.md)
-                .padding(.vertical, Theme.Spacing.sm)
-                .background(Theme.Colors.background)
-                
+                AppHeaderView()
+
                 Divider()
                 
                 // Scrollable Content
@@ -90,7 +70,7 @@ struct HomeView: View {
                             bloggers: BloggerMockData.bloggers
                         )
                         
-                        if authManager.isLoggedIn {
+                        if authVM.currentUser != nil {
                             InventorySuggestionsCarousel(
                                 inventory: DefaultInventoryItems.all,
                                 onRecipeTap: { recipe in
@@ -108,14 +88,11 @@ struct HomeView: View {
             .navigationDestination(item: $selectedRecipe) { recipe in
                 RecipeDetailView(recipe: recipe)
             }
-            .navigationDestination(isPresented: $showNotifications) {
-                NotificationsView()
-            }
         }
     }
 }
 #Preview {
     HomeView()
-        
+        .environmentObject(AuthViewModel())
 }
 

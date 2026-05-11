@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SignupView: View {
 
+    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var authVM: AuthViewModel
     @State private var isPasswordVisible: Bool = false
     @State private var agreedToTerms: Bool = false
@@ -19,6 +20,10 @@ struct SignupView: View {
 
         ScrollView {
             VStack(spacing: 0) {
+                closeButton
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
 
                 // MARK: - Logo & Header
                 VStack(spacing: 12) {
@@ -198,5 +203,24 @@ struct SignupView: View {
             }
         }
         .background(Color(.systemGroupedBackground))
+        .onChange(of: authVM.currentUser?.id) { _, userID in
+            if userID != nil {
+                dismiss()
+            }
+        }
+    }
+
+    private var closeButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Image(systemName: "xmark")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(.secondary)
+                .frame(width: 34, height: 34)
+                .background(Color(.systemBackground))
+                .clipShape(Circle())
+        }
+        .accessibilityLabel("Close")
     }
 }
