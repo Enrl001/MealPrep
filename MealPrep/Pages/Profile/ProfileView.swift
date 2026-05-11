@@ -12,7 +12,8 @@ struct ProfileView: View {
     @State private var showAuthPopup = false
     @State private var currentUser: User?
     @State private var authDestination: AuthDestination?
-    @StateObject private var authViewModel = AuthViewModel()
+    @State private var selectedRecipe: Recipe?
+    @EnvironmentObject private var authViewModel: AuthViewModel
 
     private enum AuthDestination: Identifiable {
         case login
@@ -30,17 +31,30 @@ struct ProfileView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 0) {
-                    profileHeader
-                    tabSelector
-                    tabContent
+            VStack(spacing: 0) {
+                AppHeaderView()
+
+                Divider()
+
+                if currentUser == nil && authViewModel.currentUser == nil {
+                    signedOutProfileView
+                } else {
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 0) {
+                            profileHeader
+                            tabSelector
+                            tabContent
+                        }
+                        .padding(.top, Theme.Spacing.lg)
+                        .padding(.bottom, Theme.Spacing.xl)
+                    }
                 }
-                .padding(.top, Theme.Spacing.lg)
-                .padding(.bottom, Theme.Spacing.xl)
             }
             .background(Theme.Colors.background)
             .toolbar(.hidden, for: .navigationBar)
+            .navigationDestination(item: $selectedRecipe) { recipe in
+                RecipeDetailView(recipe: recipe)
+            }
         }
         .sheet(item: $authDestination) { destination in
             NavigationStack {
@@ -57,6 +71,9 @@ struct ProfileView: View {
             }
             .environmentObject(authViewModel)
         }
+        .onAppear {
+            currentUser = authViewModel.currentUser
+        }
         .onChange(of: authViewModel.currentUser?.id) { _, _ in
             currentUser = authViewModel.currentUser
             if currentUser != nil {
@@ -68,6 +85,115 @@ struct ProfileView: View {
 
     private var profileDisplayName: String {
         currentUser?.displayName ?? authViewModel.currentUser?.displayName ?? viewModel.profile.name
+    }
+
+    private var signedOutProfileView: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: Theme.Spacing.lg) {
+                guestProfileCard
+                culinaryIdentityCard
+                profileAuthButtons
+            }
+            .padding(Theme.Spacing.md)
+        }
+        .background(Theme.Colors.surface)
+    }
+
+    private var guestProfileCard: some View {
+        VStack(spacing: Theme.Spacing.sm) {
+            Circle()
+                .fill(Theme.Colors.background)
+                .frame(width: 98, height: 98)
+                .overlay(
+                    Circle()
+                        .stroke(Theme.Colors.primary, lineWidth: 3)
+                )
+                .overlay {
+                    Image(systemName: "person.crop.circle.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(.white, Theme.Colors.primary.opacity(0.65))
+                        .padding(10)
+                }
+
+            Text("Guest User")
+                .font(.system(size: 26, weight: .bold))
+                .foregroundStyle(Theme.Colors.textPrimary)
+
+            Text("Sign in to personalize your profile")
+                .font(Theme.Typography.body)
+                .foregroundStyle(Theme.Colors.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(Theme.Spacing.lg)
+        .background(Theme.Colors.background)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.md)
+                .stroke(Theme.Colors.divider)
+        )
+    }
+
+    private var culinaryIdentityCard: some View {
+        VStack(spacing: Theme.Spacing.md) {
+            Image(systemName: "book")
+                .font(.system(size: Theme.IconSize.lg, weight: .semibold))
+                .foregroundStyle(Theme.Colors.primary)
+                .frame(width: 64, height: 64)
+                .background(Theme.Colors.primaryLight)
+                .clipShape(Circle())
+
+            VStack(spacing: Theme.Spacing.sm) {
+                Text("Your Culinary Identity")
+                    .font(Theme.Typography.heading)
+                    .foregroundStyle(Theme.Colors.textPrimary)
+                    .multilineTextAlignment(.center)
+
+                Text("Sign in to save recipes, track your inventory, and build your cooking legacy.")
+                    .font(Theme.Typography.body)
+                    .foregroundStyle(Theme.Colors.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(3)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(Theme.Spacing.lg)
+        .background(Theme.Colors.background)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.md)
+                .stroke(Theme.Colors.divider)
+        )
+    }
+
+    private var profileAuthButtons: some View {
+        VStack(spacing: Theme.Spacing.sm) {
+            Button {
+                showAuthDestination(.login)
+            } label: {
+                Text("Login")
+                    .font(Theme.Typography.subhead)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Theme.Spacing.md)
+                    .background(Theme.Colors.primary)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
+            }
+
+            Button {
+                showAuthDestination(.signUp)
+            } label: {
+                Text("Sign Up")
+                    .font(Theme.Typography.subhead)
+                    .foregroundStyle(Theme.Colors.primary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Theme.Spacing.md)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Theme.Radius.md)
+                            .stroke(Theme.Colors.primary, lineWidth: 1)
+                    )
+            }
+        }
     }
 
     private var profileHeader: some View {
@@ -167,11 +293,15 @@ struct ProfileView: View {
     private var tabContent: some View {
         switch viewModel.selectedTab {
         case .saved:
-            SavedRecipeTab(recipes: MockRecipes.all)
+            SavedRecipeTab(recipes: MockRecipes.all) { recipe in
+                selectedRecipe = recipe
+            }
         case .inventory:
             InventoryTab()
         case .myRecipes:
-            MyRecipesTab()
+            MyRecipesTab { recipe in
+                selectedRecipe = recipe
+            }
         case .followers:
             FollowersTab(people: viewModel.followers)
         case .following:

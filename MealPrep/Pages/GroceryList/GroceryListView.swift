@@ -13,34 +13,39 @@ struct GroceryListView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                Theme.Colors.surface
-                    .ignoresSafeArea()
+            VStack(spacing: 0) {
+                AppHeaderView()
 
-                ScrollView {
-                    VStack(spacing: Theme.Spacing.lg) {
-                        headerView
+                Divider()
 
-                        WeekNavigatorView(
-                            weekLabel: "This Week",
-                            weekRange: currentWeekRangeText
-                        )
+                ZStack {
+                    Theme.Colors.surface
+                        .ignoresSafeArea()
 
-                        summaryView
-
-                        ForEach(viewModel.groupedItems, id: \.category) { section in
-                            GroceryChecklistSection(
-                                section: section,
-                                onToggle: viewModel.toggle
+                    ScrollView {
+                        VStack(spacing: Theme.Spacing.lg) {
+                            WeekNavigatorView(
+                                weekLabel: "This Week",
+                                weekRange: currentWeekRangeText
                             )
-                        }
-                    }
-                    .padding(Theme.Spacing.md)
-                    .padding(.bottom, 80)
-                }
 
-                addButton
+                            summaryView
+
+                            ForEach(viewModel.groupedItems, id: \.category) { section in
+                                GroceryChecklistSection(
+                                    section: section,
+                                    onToggle: viewModel.toggle
+                                )
+                            }
+                        }
+                        .padding(Theme.Spacing.md)
+                        .padding(.bottom, 80)
+                    }
+
+                    addButton
+                }
             }
+            .toolbar(.hidden, for: .navigationBar)
         }
     }
 

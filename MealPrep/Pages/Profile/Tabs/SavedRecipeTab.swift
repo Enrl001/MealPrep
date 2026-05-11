@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SavedRecipeTab: View {
     let recipes: [Recipe]
+    var onRecipeTap: (Recipe) -> Void = { _ in }
 
     var body: some View {
         LazyVGrid(
@@ -21,7 +22,9 @@ struct SavedRecipeTab: View {
             ForEach(recipes) { recipe in
                 VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                     ZStack(alignment: .topTrailing) {
-                        RecipeCard(recipe: recipe)
+                        RecipeCard(recipe: recipe) {
+                            onRecipeTap(recipe)
+                        }
                         Image(systemName: "bookmark")
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(Theme.Colors.primary)
