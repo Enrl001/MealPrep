@@ -11,6 +11,7 @@ struct PotluckView: View {
     @StateObject private var viewModel = PotluckViewModel()
     @State private var selectedTab: PotluckListTab = .upcoming
     @State private var authDestination: AuthDestination?
+    @State private var selectedPotluck: PotluckEvent?
     @State private var isShowingCreateSheet = false
 
     private enum PotluckListTab: String, CaseIterable {
@@ -61,6 +62,9 @@ struct PotluckView: View {
             }
             .background(Theme.Colors.surface)
             .toolbar(.hidden, for: .navigationBar)
+            .navigationDestination(item: $selectedPotluck) { potluck in
+                PotluckDetailsView(potluck: potluck)
+            }
         }
         .sheet(item: $authDestination) { destination in
             NavigationStack {
@@ -103,7 +107,9 @@ struct PotluckView: View {
                         emptyLoggedInState
                     } else {
                         ForEach(displayedPotlucks) { potluck in
-                            PotluckCard(potluck: potluck)
+                            PotluckCard(potluck: potluck) {
+                                selectedPotluck = potluck
+                            }
                         }
                     }
                 }
