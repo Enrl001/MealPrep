@@ -86,7 +86,28 @@ struct ProfileView: View {
     }
 
     private var profileDisplayName: String {
-        currentUser?.displayName ?? authViewModel.currentUser?.displayName ?? viewModel.profile.name
+        guard let user = currentUser ?? authViewModel.currentUser else {
+            return viewModel.profile.name
+        }
+
+        if let name = user.name?.trimmingCharacters(in: .whitespacesAndNewlines), !name.isEmpty {
+            return name
+        }
+
+        return user.username.components(separatedBy: "@").first ?? user.username
+    }
+
+    private var profileRecipeCount: String {
+        guard let userID = (currentUser ?? authViewModel.currentUser)?.id else { return "0" }
+        return "\(loadRecipes(for: userID).count)"
+    }
+
+    private var profileSavedCount: String {
+        "\(userLibrary.likedRecipes.count)"
+    }
+
+    private var profileFollowingCount: String {
+        "\(userLibrary.followedBloggers.count)"
     }
 
     private var signedOutProfileView: some View {
@@ -231,9 +252,9 @@ struct ProfileView: View {
                 .foregroundStyle(Theme.Colors.textPrimary)
 
             HStack(spacing: Theme.Spacing.xl) {
-                statView(value: viewModel.profile.recipeCount, title: "RECIPES")
-                statView(value: viewModel.profile.followerCount, title: "FOLLOWERS")
-                statView(value: viewModel.profile.followingCount, title: "FOLLOWING")
+                statView(value: profileRecipeCount, title: "RECIPES")
+                statView(value: profileSavedCount, title: "SAVED")
+                statView(value: profileFollowingCount, title: "FOLLOWING")
             }
         }
         .padding(.horizontal, Theme.Spacing.lg)
@@ -296,7 +317,9 @@ struct ProfileView: View {
     private var tabContent: some View {
         switch viewModel.selectedTab {
         case .saved:
-            SavedRecipeTab()
+            SavedRecipeTab { recipe in
+                selectedRecipe = recipe
+            }
         case .inventory:
             InventoryTab()
         case .myRecipes:

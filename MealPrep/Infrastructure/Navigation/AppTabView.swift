@@ -22,7 +22,12 @@ struct AppTabView: View {
                 }
             HomeView()
                 .tabItem {
-                    Label("Home", systemImage: "house")
+                    Label {
+                        Text("Home")
+                    } icon: {
+                        Image(systemName: "house")
+                            .symbolVariant(.none)
+                    }
                 }
             ScheduleView()
                 .tabItem {

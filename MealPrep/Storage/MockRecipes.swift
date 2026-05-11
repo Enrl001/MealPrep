@@ -5,23 +5,6 @@ struct MockRecipes {
     static let all: [Recipe] = [
         Recipe(
             id: UUID(),
-            name: "Avocado Toast",
-            imageURL: "https://images.unsplash.com/photo-1541519227354-08fa5d50c820?w=600",
-            cuisine: "American",
-            mealType: .breakfast,
-            cookingTimeMinutes: 10,
-            reviewCount: 30,
-            servings: 1,
-            rating: 5,
-            ingredients: [Ingredient(name: "2 slices sourdough", quantity: ""), Ingredient(name: "1 avocado", quantity: ""), Ingredient(name: "salt", quantity: ""), Ingredient(name: "chili flakes", quantity: ""), Ingredient(name: "lemon juice", quantity: "")],
-            instructions: [RecipeStep(title: "Step 1", description: "Toast bread."), RecipeStep(title: "Step 2", description: "Mash avocado with lemon juice and salt."), RecipeStep(title: "Step 3", description: "Spread on toast."), RecipeStep(title: "Step 4", description: "Top with chili flakes.")],
-            authorUsername: "healthybites",
-            isPublic: true,
-            isTrending: true,
-            tags: ["quick", "vegetarian", "healthy"]
-        ),
-        Recipe(
-            id: UUID(),
             title: "Classic French Omelette",
             imageURL: "https://images.unsplash.com/photo-1510693206972-df098062cb71?w=600",
             cuisine: "French",

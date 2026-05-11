@@ -36,12 +36,6 @@ struct PotluckCard: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                Spacer()
-
-                Image(systemName: "ellipsis")
-                    .font(.system(size: Theme.IconSize.sm, weight: .semibold))
-                    .foregroundStyle(Theme.Colors.textSecondary)
-                    .rotationEffect(.degrees(90))
             }
 
             Label(dateText, systemImage: "clock")
