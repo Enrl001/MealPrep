@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Blogger: Identifiable, Hashable {
+struct Blogger: Identifiable, Hashable, Codable {
     let id: UUID
     let name: String
     let imageURL: String

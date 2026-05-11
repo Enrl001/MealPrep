@@ -74,7 +74,6 @@ struct InventorySuggestionsCarousel: View {
     }
 }
 
-// MARK: - Pantry Suggestion Card
 struct PantrySuggestionCard: View {
     let recipe: Recipe
     let matchedItem: InventoryItem

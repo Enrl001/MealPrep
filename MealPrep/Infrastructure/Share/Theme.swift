@@ -9,7 +9,6 @@ import SwiftUI
 
 struct Theme {
 
-    // MARK: — Colors
     struct Colors {
         static let primary        = Color(hex: "#FE9900")   // orange
         static let primaryLight   = Color(hex: "#FFF3D6")
@@ -26,7 +25,6 @@ struct Theme {
 
         static let success        = Color(hex: "#2D9E6B")
 
-        // Meal schedule block colors
         struct Meal {
             static let breakfast  = Color(hex: "#FE9900")
             static let lunch      = Color(hex: "#3B7DD8")
@@ -35,7 +33,6 @@ struct Theme {
         }
     }
 
-    // MARK: — Typography
     struct Typography {
         static let hero     = Font.system(.largeTitle,  design: .rounded, weight: .bold)
         static let heading  = Font.system(.title2,      design: .default, weight: .semibold)
@@ -45,7 +42,6 @@ struct Theme {
         static let micro    = Font.system(.caption2,    design: .default, weight: .regular)
     }
 
-    // MARK: — Spacing
     struct Spacing {
         static let xs:  CGFloat = 4
         static let sm:  CGFloat = 8
@@ -54,8 +50,7 @@ struct Theme {
         static let xl:  CGFloat = 32
         static let xxl: CGFloat = 48
     }
-
-    // MARK: — Corner Radius
+    
     struct Radius {
         static let sm:  CGFloat = 6
         static let md:  CGFloat = 12
@@ -63,7 +58,6 @@ struct Theme {
         static let pill: CGFloat = 999
     }
 
-    // MARK: — Icon Sizes
     struct IconSize {
         static let sm:  CGFloat = 16
         static let md:  CGFloat = 22

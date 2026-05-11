@@ -38,27 +38,8 @@ final class PotluckViewModel: ObservableObject {
 
     private var currentUserID: String?
 
-    var samplePotlucks: [PotluckEvent] {
-        [
-            PotluckEvent(
-                title: "High-Protein Meal Prep Meetup",
-                category: "Healthy Social",
-                location: "Community Kitchen",
-                hostName: "Mark J.",
-                date: Calendar.current.date(byAdding: .day, value: 5, to: Date()) ?? Date()
-            ),
-            PotluckEvent(
-                title: "Keto-Friendly Backyard BBQ",
-                category: "Neighborhood",
-                location: "Lincoln Park Pavilion",
-                hostName: "Sarah K.",
-                date: Calendar.current.date(byAdding: .day, value: 6, to: Date()) ?? Date()
-            )
-        ]
-    }
-
     var potlucks: [PotluckEvent] {
-        (userPotlucks + samplePotlucks).sorted { $0.date < $1.date }
+        userPotlucks.sorted { $0.date < $1.date }
     }
 
     func load(for userID: String) {

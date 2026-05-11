@@ -8,11 +8,19 @@ import SwiftUI
 
 struct AppTabView: View {
     @StateObject private var authViewModel = AuthViewModel()
-    @StateObject private var appRouter = AppRouter()
+    @State private var selectedTab = AppTab.home
     var userLibrary = UserLibrary.shared
+
+    private enum AppTab {
+        case potluck
+        case grocery
+        case home
+        case schedule
+        case profile
+    }
     
     var body: some View {
-        TabView(selection: $appRouter.selectedTab) {
+        TabView(selection: $selectedTab) {
             PotluckView()
                 .tabItem {
                     Label("Potluck", systemImage: "fork.knife")

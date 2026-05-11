@@ -25,7 +25,6 @@ struct SignupView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 12)
 
-                // MARK: - Logo & Header
                 VStack(spacing: 12) {
 
                     // Logo
@@ -51,7 +50,6 @@ struct SignupView: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 32)
 
-                // MARK: - Form Fields
                 VStack(spacing: 16) {
 
                     // Full Name
@@ -161,7 +159,6 @@ struct SignupView: View {
                 }
                 .padding(.horizontal, 24)
 
-                // MARK: - Get Started Button
                 Button {
                     authVM.signUp()
                 } label: {
@@ -176,7 +173,6 @@ struct SignupView: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 20)
 
-                // MARK: - Error Message
                 if !authVM.errorMessage.isEmpty {
                     Text(authVM.errorMessage)
                         .font(.system(size: 14))
@@ -185,7 +181,6 @@ struct SignupView: View {
                         .padding(.top, 8)
                 }
 
-                // MARK: - Login Link
                 HStack(spacing: 4) {
                     Text("Already have an account?")
                         .foregroundColor(.secondary)

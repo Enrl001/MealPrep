@@ -12,11 +12,12 @@ class UserLibrary {
     static let shared = UserLibrary()
 
     private let likedRecipesKey = "likedRecipes"
-    private let followedBloggersKey = "followedBloggerIDs"
+    private let followedBloggersKey = "followedBloggers"
 
     var likedRecipeIDs: Set<UUID> = []
     var followedBloggerIDs: Set<UUID> = []
     private var storedLikedRecipes: [Recipe] = []
+    private var storedFollowedBloggers: [Blogger] = []
 
     init() {
         loadLikedRecipes()
@@ -48,21 +49,25 @@ class UserLibrary {
 
     // Followed Bloggers
     func toggleFollow(for blogger: Blogger) {
-        if followedBloggerIDs.contains(blogger.id) {
+        if isFollowing(blogger) {
             followedBloggerIDs.remove(blogger.id)
+            storedFollowedBloggers.removeAll { savedBlogger in
+                savedBlogger.id == blogger.id || savedBlogger.name == blogger.name
+            }
         } else {
             followedBloggerIDs.insert(blogger.id)
+            storedFollowedBloggers.insert(blogger, at: 0)
         }
 
         saveFollowedBloggers()
     }
 
     func isFollowing(_ blogger: Blogger) -> Bool {
-        followedBloggerIDs.contains(blogger.id)
+        followedBloggerIDs.contains(blogger.id) || storedFollowedBloggers.contains { $0.name == blogger.name }
     }
 
     var followedBloggers: [Blogger] {
-        BloggerMockData.bloggers.filter { followedBloggerIDs.contains($0.id) }
+        storedFollowedBloggers
     }
 
     private func saveLikedRecipes() {
@@ -86,12 +91,22 @@ class UserLibrary {
     }
 
     private func saveFollowedBloggers() {
-        let ids = followedBloggerIDs.map(\.uuidString)
-        UserDefaults.standard.set(ids, forKey: followedBloggersKey)
+        do {
+            let data = try JSONEncoder().encode(storedFollowedBloggers)
+            UserDefaults.standard.set(data, forKey: followedBloggersKey)
+        } catch {
+            print("Failed to save followed bloggers:", error)
+        }
     }
 
     private func loadFollowedBloggers() {
-        let ids = UserDefaults.standard.stringArray(forKey: followedBloggersKey) ?? []
-        followedBloggerIDs = Set(ids.compactMap(UUID.init(uuidString:)))
+        guard let data = UserDefaults.standard.data(forKey: followedBloggersKey) else { return }
+
+        do {
+            storedFollowedBloggers = try JSONDecoder().decode([Blogger].self, from: data)
+            followedBloggerIDs = Set(storedFollowedBloggers.map(\.id))
+        } catch {
+            print("Failed to load followed bloggers:", error)
+        }
     }
 }

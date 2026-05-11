@@ -17,7 +17,6 @@ struct RecipeCardCarousel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             
-            // MARK: - Section Header
             HStack {
                 Text(title)
                     .font(Theme.Typography.heading)
@@ -33,7 +32,6 @@ struct RecipeCardCarousel: View {
             }
             .padding(.horizontal, Theme.Spacing.md)
             
-            // MARK: - Horizontal Scroll
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: Theme.Spacing.sm) {
                     ForEach(recipes) { recipe in
