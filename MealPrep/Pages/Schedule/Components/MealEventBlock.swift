@@ -16,6 +16,12 @@ struct MealEventBlock: View {
                 .frame(width: 4)
 
             VStack(alignment: .leading, spacing: 2) {
+                if event.recipe != nil {
+                    Image(systemName: "book.pages")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(event.mealType.color)
+                }
+
                 Text(event.recipeName)
                     .font(Theme.Typography.micro.bold())
                     .foregroundColor(event.mealType.color)

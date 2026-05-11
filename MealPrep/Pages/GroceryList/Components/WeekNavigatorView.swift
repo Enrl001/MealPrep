@@ -8,11 +8,17 @@ import SwiftUI
 struct WeekNavigatorView: View {
     let weekLabel: String
     let weekRange: String
+    var onPreviousWeek: () -> Void = {}
+    var onNextWeek: () -> Void = {}
 
     var body: some View {
         HStack {
-            Image(systemName: "chevron.left")
-                .foregroundColor(Theme.Colors.tertiary)
+            Button(action: onPreviousWeek) {
+                Image(systemName: "chevron.left")
+                    .foregroundColor(Theme.Colors.tertiary)
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.plain)
 
             Spacer()
 
@@ -28,8 +34,12 @@ struct WeekNavigatorView: View {
 
             Spacer()
 
-            Image(systemName: "chevron.right")
-                .foregroundColor(Theme.Colors.tertiary)
+            Button(action: onNextWeek) {
+                Image(systemName: "chevron.right")
+                    .foregroundColor(Theme.Colors.tertiary)
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.plain)
         }
         .padding()
         .background(Theme.Colors.primaryLight.opacity(0.5))

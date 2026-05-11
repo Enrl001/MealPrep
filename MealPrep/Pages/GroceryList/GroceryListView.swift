@@ -25,17 +25,23 @@ struct GroceryListView: View {
                     ScrollView {
                         VStack(spacing: Theme.Spacing.lg) {
                             WeekNavigatorView(
-                                weekLabel: "This Week",
-                                weekRange: currentWeekRangeText
+                                weekLabel: viewModel.weekLabel,
+                                weekRange: viewModel.weekRange,
+                                onPreviousWeek: viewModel.moveToPreviousWeek,
+                                onNextWeek: viewModel.moveToNextWeek
                             )
 
                             summaryView
 
-                            ForEach(viewModel.groupedItems, id: \.category) { section in
-                                GroceryChecklistSection(
-                                    section: section,
-                                    onToggle: viewModel.toggle
-                                )
+                            if viewModel.groupedItems.isEmpty {
+                                emptyWeekView
+                            } else {
+                                ForEach(viewModel.groupedItems, id: \.category) { section in
+                                    GroceryChecklistSection(
+                                        section: section,
+                                        onToggle: viewModel.toggle
+                                    )
+                                }
                             }
                         }
                         .padding(Theme.Spacing.md)
@@ -47,17 +53,9 @@ struct GroceryListView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
         }
-    }
-
-    private var currentWeekRangeText: String {
-        let calendar = Calendar.current
-        let today = Date()
-        let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: today)?.start ?? today
-        let endOfWeek = calendar.date(byAdding: .day, value: 6, to: startOfWeek) ?? today
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("MMM d")
-
-        return "\(formatter.string(from: startOfWeek)) - \(formatter.string(from: endOfWeek))"
+        .onAppear {
+            viewModel.reloadCurrentWeek()
+        }
     }
 
     private var boughtCountText: String {
@@ -102,6 +100,26 @@ struct GroceryListView: View {
                 color: Theme.Colors.Meal.lunch
             )
         }
+    }
+
+    private var emptyWeekView: some View {
+        VStack(spacing: Theme.Spacing.sm) {
+            Image(systemName: "basket")
+                .font(.system(size: Theme.IconSize.lg, weight: .semibold))
+                .foregroundColor(Theme.Colors.textTertiary)
+
+            Text("No grocery items for this week")
+                .font(Theme.Typography.subhead)
+                .foregroundColor(Theme.Colors.textPrimary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(Theme.Spacing.xl)
+        .background(Theme.Colors.background)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.lg))
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.Radius.lg)
+                .stroke(Theme.Colors.divider)
+        )
     }
 
     private var addButton: some View {

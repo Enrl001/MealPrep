@@ -8,7 +8,9 @@ import SwiftUI
 
 struct AddMealSheet: View {
     @ObservedObject var viewModel: ScheduleViewModel
+    let recipe: Recipe?
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var authViewModel: AuthViewModel
 
     @State private var recipeName = ""
     @State private var selectedMealType: MealType = .breakfast
@@ -17,9 +19,18 @@ struct AddMealSheet: View {
     @State private var repeatWeekly = true
     @State private var selectedRepeatDays: Set<String> = ["M0", "W2", "F4"]
 
+    init(viewModel: ScheduleViewModel, recipe: Recipe? = nil) {
+        self.viewModel = viewModel
+        self.recipe = recipe
+        _recipeName = State(initialValue: recipe?.name ?? "")
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
             sheetHeader
+            if let recipe {
+                recipeSummary(recipe)
+            }
             recipeNameField
             mealTypePicker
             dateAndTimeFields
@@ -60,6 +71,40 @@ struct AddMealSheet: View {
                 .padding()
                 .background(Theme.Colors.surface)
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
+                .disabled(recipe != nil)
+        }
+    }
+
+    private func recipeSummary(_ recipe: Recipe) -> some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            Text("Selected Recipe")
+                .font(Theme.Typography.caption.bold())
+                .foregroundColor(Theme.Colors.textSecondary)
+
+            HStack(spacing: Theme.Spacing.sm) {
+                Image(systemName: "fork.knife")
+                    .font(.system(size: Theme.IconSize.md, weight: .semibold))
+                    .foregroundColor(Theme.Colors.primary)
+                    .frame(width: 40, height: 40)
+                    .background(Theme.Colors.primaryLight)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.sm))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(recipe.name)
+                        .font(Theme.Typography.subhead)
+                        .foregroundColor(Theme.Colors.textPrimary)
+                        .lineLimit(1)
+
+                    Text("\(recipe.ingredients.count) ingredients")
+                        .font(Theme.Typography.caption)
+                        .foregroundColor(Theme.Colors.textSecondary)
+                }
+
+                Spacer()
+            }
+            .padding()
+            .background(Theme.Colors.surface)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
         }
     }
 
@@ -155,13 +200,20 @@ struct AddMealSheet: View {
     private var addMealButton: some View {
         Button {
             let finalName = recipeName.isEmpty ? "New Meal" : recipeName
+            let missingIngredients = missingIngredientsForRecipe()
 
             viewModel.addMeal(
                 recipeName: finalName,
                 mealType: selectedMealType,
                 day: selectedDay,
-                time: selectedTime
+                time: selectedTime,
+                recipe: recipe,
+                ingredients: recipe?.ingredients ?? [],
+                missingIngredients: missingIngredients
             )
+
+            notifyForMissingIngredientsIfNeeded(missingIngredients)
+            syncRecipeIngredientsToGroceryList()
 
             dismiss()
         } label: {
@@ -173,5 +225,63 @@ struct AddMealSheet: View {
                 .background(Theme.Colors.primary)
                 .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
         }
+    }
+
+    private func missingIngredientsForRecipe() -> [Ingredient] {
+        guard let recipe,
+              let userId = authViewModel.currentUser?.id else {
+            return []
+        }
+
+        let inventory = loadInventory(userId: userId)
+        return recipe.ingredients.filter { ingredient in
+            !inventory.contains { inventoryItem in
+                ingredientMatchesInventory(ingredient.name, inventoryItem.name)
+            }
+        }
+    }
+
+    private func notifyForMissingIngredientsIfNeeded(_ missingIngredients: [Ingredient]) {
+        guard let recipe else {
+            return
+        }
+
+        NotificationStore.shared.addMissingIngredientsNotification(
+            recipeName: recipe.name,
+            missingIngredients: missingIngredients
+        )
+    }
+
+    private func syncRecipeIngredientsToGroceryList() {
+        guard let recipe,
+              let userId = authViewModel.currentUser?.id else {
+            return
+        }
+
+        let inventory = loadInventory(userId: userId)
+        UserDefaultManager.shared.addRecipeIngredientsToCurrentGroceryList(
+            recipeName: recipe.name,
+            ingredients: recipe.ingredients,
+            inventory: inventory
+        )
+    }
+
+    private func ingredientMatchesInventory(_ ingredientName: String, _ inventoryName: String) -> Bool {
+        let ingredient = normalizedIngredientName(ingredientName)
+        let inventory = normalizedIngredientName(inventoryName)
+
+        return ingredient == inventory || ingredient.contains(inventory) || inventory.contains(ingredient)
+    }
+
+    private func normalizedIngredientName(_ name: String) -> String {
+        name
+            .lowercased()
+            .replacingOccurrences(of: "-", with: " ")
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty }
+            .map { word in
+                word.hasSuffix("s") ? String(word.dropLast()) : word
+            }
+            .joined(separator: " ")
     }
 }

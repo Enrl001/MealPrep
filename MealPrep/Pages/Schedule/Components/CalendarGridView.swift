@@ -79,7 +79,16 @@ struct CalendarGridView: View {
                         .frame(height: 72)
 
                     ForEach(eventsForCell(dayIndex: dayIndex, rowIndex: rowIndex)) { event in
-                        MealEventBlock(event: event)
+                        if let recipe = event.recipe {
+                            NavigationLink {
+                                RecipeDetailView(recipe: recipe)
+                            } label: {
+                                MealEventBlock(event: event)
+                            }
+                            .buttonStyle(.plain)
+                        } else {
+                            MealEventBlock(event: event)
+                        }
                     }
                 }
             }

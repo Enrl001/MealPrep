@@ -5,9 +5,10 @@
 //  Created by Hline Nadi Khant on 11/5/2026.
 //
 
+import Combine
 import SwiftUI
 
-struct Notification: Identifiable {
+struct Notification: Identifiable, Codable {
     let id: UUID
     let title: String
     let message: String
@@ -16,25 +17,70 @@ struct Notification: Identifiable {
     var isRead: Bool = false
 }
 
-enum NotificationType {
-    case newRecipe, follow, trending, system
+enum NotificationType: Codable {
+    case newRecipe, follow, trending, system, missingIngredients
 }
 
-struct MockNotifications {
-    static let all: [Notification] = [
-        Notification(id: UUID(), title: "New Trending Recipe", message: "Creamy Basil Pesto Linguine is trending in your area!", time: "2m ago", type: .trending),
-        Notification(id: UUID(), title: "Chef Julia posted", message: "Chef Julia just posted a new recipe: Summer Greek Salad Bowl", time: "15m ago", type: .newRecipe),
-        Notification(id: UUID(), title: "New Follower", message: "Mark Bittman started following you", time: "1h ago", type: .follow),
-        Notification(id: UUID(), title: "Recipe Saved", message: "Your recipe Avocado Toast has been saved 10 times!", time: "2h ago", type: .newRecipe),
-        Notification(id: UUID(), title: "Trending Now", message: "Mediterranean Hummus Bowl is trending this week", time: "3h ago", type: .trending),
-        Notification(id: UUID(), title: "New Follower", message: "Elena S. started following you", time: "5h ago", type: .follow),
-        Notification(id: UUID(), title: "Weekly Summary", message: "You cooked 3 recipes this week. Keep it up!", time: "1d ago", type: .system),
-        Notification(id: UUID(), title: "Chef Julia posted", message: "Chef Julia just posted: Honey Glazed Salmon Quinoa", time: "1d ago", type: .newRecipe),
-    ]
+final class NotificationStore: ObservableObject {
+    static let shared = NotificationStore()
+
+    @Published private(set) var notifications: [Notification] = []
+
+    private let notificationsKey = "notifications"
+
+    private init() {
+        load()
+    }
+
+    func addMissingIngredientsNotification(recipeName: String, missingIngredients: [Ingredient]) {
+        guard !missingIngredients.isEmpty else { return }
+
+        let list = missingIngredients
+            .map { "\($0.quantity) \($0.name)" }
+            .joined(separator: ", ")
+
+        let notification = Notification(
+            id: UUID(),
+            title: "Missing Ingredients",
+            message: "\(recipeName) needs: \(list)",
+            time: "Just now",
+            type: .missingIngredients
+        )
+
+        notifications.insert(notification, at: 0)
+        save()
+    }
+
+    func markAsRead(_ notification: Notification) {
+        guard let index = notifications.firstIndex(where: { $0.id == notification.id }) else {
+            return
+        }
+
+        notifications[index].isRead = true
+        save()
+    }
+
+    private func load() {
+        guard let data = UserDefaults.standard.data(forKey: notificationsKey),
+              let savedNotifications = try? JSONDecoder().decode([Notification].self, from: data) else {
+            notifications = []
+            return
+        }
+
+        notifications = savedNotifications
+    }
+
+    private func save() {
+        guard let data = try? JSONEncoder().encode(notifications) else {
+            return
+        }
+
+        UserDefaults.standard.set(data, forKey: notificationsKey)
+    }
 }
 
 struct NotificationsView: View {
-    @State private var notifications = MockNotifications.all
+    @StateObject private var notificationStore = NotificationStore.shared
     
     var body: some View {
         VStack(spacing: 0) {
@@ -55,7 +101,7 @@ struct NotificationsView: View {
             
             // MARK: - Notifications List
             List {
-                ForEach(notifications) { notification in
+                ForEach(notificationStore.notifications) { notification in
                     NotificationRow(notification: notification)
                         .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                         .listRowSeparator(.hidden)
@@ -65,9 +111,7 @@ struct NotificationsView: View {
                             : Theme.Colors.primaryLight.opacity(0.3)
                         )
                         .onTapGesture {
-                            if let index = notifications.firstIndex(where: { $0.id == notification.id }) {
-                                notifications[index].isRead = true
-                            }
+                            notificationStore.markAsRead(notification)
                         }
                 }
             }
@@ -88,6 +132,7 @@ struct NotificationRow: View {
         case .follow: return "person.circle.fill"
         case .trending: return "flame.circle.fill"
         case .system: return "bell.circle.fill"
+        case .missingIngredients: return "cart.badge.plus"
         }
     }
     
@@ -97,6 +142,7 @@ struct NotificationRow: View {
         case .follow: return Theme.Colors.tertiary
         case .trending: return Theme.Colors.primary
         case .system: return Theme.Colors.textSecondary
+        case .missingIngredients: return Theme.Colors.tertiary
         }
     }
     

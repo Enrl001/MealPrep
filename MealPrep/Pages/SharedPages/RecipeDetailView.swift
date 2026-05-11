@@ -16,7 +16,9 @@ struct RecipeDetailView: View {
     let recipe: Recipe
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject private var appRouter: AppRouter
     @State private var showGuestGate = false
+    @State private var guestGateAction = "like recipes"
     @Environment(UserLibrary.self) private var userLibrary
 
     var body: some View {
@@ -140,6 +142,7 @@ struct RecipeDetailView: View {
                     if authVM.currentUser != nil {
                         userLibrary.toggleLike(for: recipe)
                     } else {
+                        guestGateAction = "like recipes"
                         showGuestGate = true
                     }
                 } label: {
@@ -160,6 +163,13 @@ struct RecipeDetailView: View {
                 }
                 Spacer()
                 Button {
+                    if authVM.currentUser != nil {
+                        appRouter.startCooking(recipe)
+                        dismiss()
+                    } else {
+                        guestGateAction = "start cooking"
+                        showGuestGate = true
+                    }
                 } label: {
                     HStack {
                         Image(systemName: "fork.knife")
@@ -178,7 +188,7 @@ struct RecipeDetailView: View {
             .overlay(alignment: .top) { Divider() }
         }
         .sheet(isPresented: $showGuestGate) {
-            GuestGateView(action: "like recipes", isPresented: $showGuestGate)
+            GuestGateView(action: guestGateAction, isPresented: $showGuestGate)
                 .presentationDetents([.medium])
                 .environmentObject(authVM)
         }
@@ -249,5 +259,7 @@ struct IngredientRow: View {
 #Preview {
     NavigationStack {
         RecipeDetailView(recipe: MockRecipes.all[0])
+            .environmentObject(AuthViewModel())
+            .environmentObject(AppRouter())
     }
 }

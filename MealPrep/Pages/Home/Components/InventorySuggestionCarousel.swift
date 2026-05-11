@@ -9,6 +9,7 @@ import SwiftUI
 
 struct InventorySuggestionsCarousel: View {
     let inventory: [InventoryItem]
+    let recipes: [Recipe]
     var onRecipeTap: ((Recipe) -> Void)? = nil
     
     // Match recipes to inventory items
@@ -16,7 +17,7 @@ struct InventorySuggestionsCarousel: View {
         var results: [(Recipe, InventoryItem)] = []
         
         for item in inventory {
-            for recipe in MockRecipes.all {
+            for recipe in recipes {
                 let ingredientNames = recipe.ingredients.map { $0.name.lowercased() }
                 let itemName = item.name.lowercased()
                 
@@ -143,7 +144,7 @@ struct PantrySuggestionCard: View {
 
 #Preview {
     NavigationStack {
-        InventorySuggestionsCarousel(inventory: DefaultInventoryItems.all)
+        InventorySuggestionsCarousel(inventory: DefaultInventoryItems.all, recipes: [])
             .padding(.vertical)
     }
 }

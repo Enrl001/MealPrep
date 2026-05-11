@@ -2,8 +2,13 @@ import SwiftUI
 
 struct AppHeaderView: View {
     @EnvironmentObject private var authVM: AuthViewModel
+    @StateObject private var notificationStore = NotificationStore.shared
     @State private var authDestination: AuthDestination?
     @State private var showNotifications = false
+
+    private var hasUnreadNotifications: Bool {
+        notificationStore.notifications.contains { !$0.isRead }
+    }
 
     private enum AuthDestination: Identifiable {
         case login
@@ -29,10 +34,19 @@ struct AppHeaderView: View {
                 Button {
                     showNotifications = true
                 } label: {
-                    Image(systemName: "bell")
-                        .font(.system(size: 18))
-                        .foregroundStyle(Theme.Colors.textPrimary)
-                        .frame(width: 38, height: 38)
+                    ZStack(alignment: .topTrailing) {
+                        Image(systemName: "bell")
+                            .font(.system(size: 18))
+                            .foregroundStyle(Theme.Colors.textPrimary)
+                            .frame(width: 38, height: 38)
+
+                        if hasUnreadNotifications {
+                            Circle()
+                                .fill(Theme.Colors.primary)
+                                .frame(width: 8, height: 8)
+                                .offset(x: -8, y: 8)
+                        }
+                    }
                 }
                 .accessibilityLabel("Notifications")
 

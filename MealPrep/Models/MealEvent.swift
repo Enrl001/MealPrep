@@ -7,19 +7,52 @@ struct MealEvent: Identifiable, Codable, Equatable {
     let mealType: MealType
     let day: String
     let time: String
+    let recipe: Recipe?
+    let ingredients: [Ingredient]
+    let missingIngredients: [Ingredient]
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case recipeName
+        case mealType
+        case day
+        case time
+        case recipe
+        case ingredients
+        case missingIngredients
+    }
 
     init(
         id: UUID = UUID(),
         recipeName: String,
         mealType: MealType,
         day: String,
-        time: String
+        time: String,
+        recipe: Recipe? = nil,
+        ingredients: [Ingredient] = [],
+        missingIngredients: [Ingredient] = []
     ) {
         self.id = id
         self.recipeName = recipeName
         self.mealType = mealType
         self.day = day
         self.time = time
+        self.recipe = recipe
+        self.ingredients = ingredients
+        self.missingIngredients = missingIngredients
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        id = try container.decode(UUID.self, forKey: .id)
+        recipeName = try container.decode(String.self, forKey: .recipeName)
+        mealType = try container.decode(MealType.self, forKey: .mealType)
+        day = try container.decode(String.self, forKey: .day)
+        time = try container.decode(String.self, forKey: .time)
+        recipe = try container.decodeIfPresent(Recipe.self, forKey: .recipe)
+        ingredients = try container.decodeIfPresent([Ingredient].self, forKey: .ingredients) ?? []
+        missingIngredients = try container.decodeIfPresent([Ingredient].self, forKey: .missingIngredients) ?? []
     }
 }
 
